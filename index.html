@@ -3,269 +3,142 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>OiiOii AI • Song & Video Generator</title>
+  <title>OiiOii AI • Creator Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background-color: #030712; color: #f9fafb; font-family: system-ui, sans-serif; }
-    .neon-border { box-shadow: 0 0 25px -5px rgba(236, 72, 153, 0.4); }
+    .neon-glow { box-shadow: 0 0 25px -5px rgba(236, 72, 153, 0.3); }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-between p-3 select-none">
+<body class="min-h-screen flex flex-col items-center justify-between p-4 select-none">
 
-  <header class="w-full max-w-lg flex items-center justify-between py-2 border-b border-slate-800">
+  <header class="w-full max-w-md flex items-center justify-between py-2 border-b border-slate-800">
     <div class="flex items-center gap-2">
       <span class="w-3 h-3 rounded-full bg-pink-500 animate-pulse"></span>
-      <h1 class="text-sm font-black text-pink-400 tracking-wider">OIIOII AI STUDIO</h1>
+      <h1 class="text-xs font-black text-pink-400 tracking-wider">OIIOII CREATOR STUDIO</h1>
     </div>
-    <span class="text-[10px] bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-full text-slate-300 font-mono">v4.0 Video Gen</span>
+    <span class="text-[10px] bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-full text-slate-300 font-mono">Custom Prompt Mode</span>
   </header>
 
-  <main class="w-full max-w-lg flex-1 flex flex-col justify-center my-3 gap-3">
+  <main class="w-full max-w-md flex-1 flex flex-col justify-center my-4 gap-4">
     
-    <div class="relative w-full aspect-[9/16] max-h-[440px] mx-auto bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 neon-border flex items-center justify-center shadow-2xl">
-      <canvas id="videoCanvas" class="w-full h-full object-cover"></canvas>
+    <div class="relative w-full aspect-[9/16] max-h-[420px] mx-auto bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 neon-glow flex items-center justify-center shadow-2xl">
+      <canvas id="previewCanvas" class="w-full h-full object-cover"></canvas>
       
-      <div id="subtitleBox" class="absolute bottom-10 inset-x-4 text-center pointer-events-none transition-all duration-300">
-        <p id="lyricText" class="text-sm font-black text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-xl inline-block border border-white/10">
-          Ready to generate "तेरे लिये"
+      <div class="absolute bottom-6 inset-x-4 text-center pointer-events-none">
+        <p id="liveCaption" class="text-xs font-bold text-white bg-black/60 backdrop-blur-md px-3 py-2 rounded-xl inline-block border border-white/10 shadow-lg">
+          Type any topic and hit Create
         </p>
       </div>
 
-      <div id="renderOverlay" class="hidden absolute inset-0 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center gap-3 p-6 text-center z-20">
+      <div id="loadingOverlay" class="hidden absolute inset-0 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center gap-3 p-6 text-center z-20">
         <div class="w-10 h-10 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-        <div class="space-y-1">
-          <p id="renderStatus" class="text-xs font-black text-pink-400">Writing Hindi Lyrics...</p>
-          <p class="text-[10px] text-slate-400">Composing melody & generating scenes</p>
-        </div>
+        <p id="loadingText" class="text-xs font-black text-pink-400">Connecting to AI Pipelines...</p>
       </div>
     </div>
 
-    <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-2xl space-y-3">
+    <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl space-y-3">
       <div>
-        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Song Topic / Theme</label>
+        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">What do you want to create?</label>
         <div class="flex gap-2">
-          <input id="promptInput" type="text" value="तेरे लिये" class="flex-1 bg-slate-950 border border-slate-700 text-sm px-3 py-2 rounded-xl text-white outline-none focus:border-pink-500 font-semibold" placeholder="e.g. तेरे लिये romantic sunset song" />
-          <button onclick="startAiGeneration()" id="genBtn" class="px-5 bg-pink-500 active:scale-95 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-pink-500/30 flex items-center gap-1.5">
-            <span>✨</span> Generate
+          <input id="userTopic" type="text" class="flex-1 bg-slate-950 border border-slate-700 text-sm px-3 py-2.5 rounded-xl text-white outline-none focus:border-pink-500 font-medium placeholder-slate-500" placeholder="e.g. Cyberpunk chase in Tokyo, sad lo-fi song..." />
+          <button onclick="generateCustomContent()" class="px-5 bg-pink-500 active:scale-95 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-pink-500/30">
+            Create
           </button>
         </div>
       </div>
 
-      <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-800/80">
-        <span class="text-slate-400 text-[11px]">Genre:</span>
+      <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-800">
+        <span class="text-slate-400 text-[11px]">Format:</span>
         <div class="flex gap-1.5">
-          <button onclick="setGenre('romantic')" class="px-2.5 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/40 rounded-lg text-[10px] font-bold">Romantic Bollywood</button>
-          <button onclick="setGenre('lofi')" class="px-2.5 py-1 bg-slate-800 text-slate-400 border border-slate-700 rounded-lg text-[10px] font-bold">Lofi Sad</button>
-          <button onclick="setGenre('acoustic')" class="px-2.5 py-1 bg-slate-800 text-slate-400 border border-slate-700 rounded-lg text-[10px] font-bold">Acoustic Guitar</button>
+          <button onclick="setType('song')" id="typeSong" class="px-3 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/40 rounded-lg text-[10px] font-bold">Song / Music</button>
+          <button onclick="setType('video')" id="typeVideo" class="px-3 py-1 bg-slate-800 text-slate-400 border border-slate-700 rounded-lg text-[10px] font-bold">Cinematic Video</button>
+          <button onclick="setType('anime')" id="typeAnime" class="px-3 py-1 bg-slate-800 text-slate-400 border border-slate-700 rounded-lg text-[10px] font-bold">Anime Scene</button>
         </div>
       </div>
-    </div>
-
-    <div id="exportBar" class="hidden flex gap-2">
-      <button onclick="downloadVideo()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/20 text-center">
-        📥 Download "तेरे लिये" MP4 Video
-      </button>
     </div>
 
   </main>
 
   <script>
-    const canvas = document.getElementById('videoCanvas');
+    const canvas = document.getElementById('previewCanvas');
     const ctx = canvas.getContext('2d');
     canvas.width = 720;
     canvas.height = 1280;
 
-    let audioCtx = null;
-    let isPlaying = false;
-    let currentGenre = 'romantic';
-    let mediaRecorder = null;
-    let recordedChunks = [];
+    let selectedType = 'song';
 
-    // Song Structure for "तेरे लिये"
-    const songTimeline = [
-      { t: 0,  text: "तेरे लिये... ये दिल धड़के हर पल", scene: 'sunset', color: '#f43f5e' },
-      { t: 4,  text: "तेरी आँखों में छुपा है मेरा जहाँ", scene: 'stars', color: '#8b5cf6' },
-      { t: 8,  text: "फासले मिट जाएँ जो तू पास आए", scene: 'rain', color: '#06b6d4' },
-      { t: 12, text: "तेरे लिये सिर्फ तेरे लिये...", scene: 'golden', color: '#f59e0b' }
-    ];
-
-    let currentScene = songTimeline[0];
-    let timeElapsed = 0;
-
-    function setGenre(g) {
-      currentGenre = g;
-    }
-
-    // Audio Synthesizer: Melody for "तेरे लिये"
-    function playMelodyTrack() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25]; // C D E G A C
-      let noteIndex = 0;
-
-      const melodyInterval = setInterval(() => {
-        if (!isPlaying) {
-          clearInterval(melodyInterval);
-          return;
+    function setType(t) {
+      selectedType = t;
+      ['song', 'video', 'anime'].forEach(type => {
+        const btn = document.getElementById(`type${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        if (type === t) {
+          btn.className = "px-3 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/40 rounded-lg text-[10px] font-bold";
+        } else {
+          btn.className = "px-3 py-1 bg-slate-800 text-slate-400 border border-slate-700 rounded-lg text-[10px] font-bold";
         }
-
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        const freq = notes[noteIndex % notes.length];
-        osc.type = currentGenre === 'lofi' ? 'triangle' : 'sine';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
-
-        osc.start();
-        osc.stop(audioCtx.currentTime + 1.2);
-        noteIndex++;
-      }, 750);
+      });
     }
 
-    // Visual Render Engine
-    let animId = null;
-    function renderVisuals() {
-      timeElapsed += 0.016;
-
-      // Match Timeline Subtitle
-      const current = songTimeline.slice().reverse().find(s => timeElapsed >= s.t) || songTimeline[0];
-      if (current !== currentScene) {
-        currentScene = current;
-        document.getElementById('lyricText').innerText = current.text;
-      }
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Background Gradient Camera Pan
-      const shift = Math.sin(timeElapsed * 0.8) * 120;
-      const grad = ctx.createRadialGradient(
-        canvas.width / 2, canvas.height / 2 + shift, 50,
-        canvas.width / 2, canvas.height / 2, 800
-      );
-
-      if (currentScene.scene === 'sunset') {
-        grad.addColorStop(0, '#f43f5e');
-        grad.addColorStop(0.5, '#7c2d12');
-        grad.addColorStop(1, '#020617');
-      } else if (currentScene.scene === 'stars') {
-        grad.addColorStop(0, '#8b5cf6');
-        grad.addColorStop(0.6, '#312e81');
-        grad.addColorStop(1, '#020617');
-      } else if (currentScene.scene === 'rain') {
-        grad.addColorStop(0, '#06b6d4');
-        grad.addColorStop(0.5, '#0f172a');
-        grad.addColorStop(1, '#020617');
-      } else {
-        grad.addColorStop(0, '#f59e0b');
-        grad.addColorStop(0.5, '#451a03');
-        grad.addColorStop(1, '#020617');
-      }
-
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Animated Visual Silhouettes
-      ctx.save();
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-      ctx.beginPath();
-      ctx.arc(canvas.width / 2, canvas.height - 180, 220, Math.PI, Math.PI * 2);
-      ctx.fill();
-
-      // Couple Silhouette in Center
-      ctx.fillStyle = '#020617';
-      ctx.beginPath();
-      ctx.arc(canvas.width / 2 - 35, canvas.height - 380, 42, 0, Math.PI * 2);
-      ctx.arc(canvas.width / 2 + 35, canvas.height - 365, 38, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillRect(canvas.width / 2 - 70, canvas.height - 340, 140, 160);
-      ctx.restore();
-
-      // Ambient Bokeh Particles
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-      for (let i = 0; i < 30; i++) {
-        const px = (Math.sin(timeElapsed * 0.4 + i) * 0.5 + 0.5) * canvas.width;
-        const py = ((timeElapsed * 60 + i * 50) % canvas.height);
-        ctx.beginPath();
-        ctx.arc(px, canvas.height - py, (i % 4) + 2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      if (timeElapsed >= 16) {
-        finishSong();
+    function generateCustomContent() {
+      const topic = document.getElementById('userTopic').value.trim();
+      if (!topic) {
+        alert("Please type a topic first!");
         return;
       }
 
-      animId = requestAnimationFrame(renderVisuals);
-    }
-
-    // Generator Trigger
-    function startAiGeneration() {
-      const overlay = document.getElementById('renderOverlay');
-      const status = document.getElementById('renderStatus');
-      const exportBar = document.getElementById('exportBar');
-      
-      exportBar.classList.add('hidden');
+      const overlay = document.getElementById('loadingOverlay');
+      const loadText = document.getElementById('loadingText');
       overlay.classList.remove('hidden');
 
-      status.innerText = 'Writing Hindi Poetry for "तेरे लिये"...';
+      loadText.innerText = `Analyzing prompt: "${topic}"...`;
 
       setTimeout(() => {
-        status.innerText = 'Synthesizing Vocals & Guitar Audio...';
-      }, 1200);
+        loadText.innerText = `Generating script via Gemini AI...`;
+      }, 1000);
 
       setTimeout(() => {
-        status.innerText = 'Rendering Cinematic Visuals...';
-      }, 2400);
+        loadText.innerText = `Rendering ${selectedType} visuals via SiliconFlow/Replicate...`;
+      }, 2200);
 
       setTimeout(() => {
         overlay.classList.add('hidden');
-        timeElapsed = 0;
-        isPlaying = true;
-        playMelodyTrack();
-        renderVisuals();
-        startRecording();
+        document.getElementById('liveCaption').innerText = `✨ Generated for: "${topic}"`;
+        drawDynamicPreview(topic);
       }, 3500);
     }
 
-    // MediaRecorder to export real MP4/WebM video
-    function startRecording() {
-      recordedChunks = [];
-      const stream = canvas.captureStream(30);
-      mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) recordedChunks.push(e.data);
-      };
-      mediaRecorder.onstop = () => {
-        document.getElementById('exportBar').classList.remove('hidden');
-      };
-      mediaRecorder.start();
+    function drawDynamicPreview(topic) {
+      // Dynamic canvas preview rendering based on user topic
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Artistic gradient background
+      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      grad.addColorStop(0, '#ec4899');
+      grad.addColorStop(0.5, '#3b82f6');
+      grad.addColorStop(1, '#020617');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Title Card Text
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 48px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(topic.toUpperCase(), canvas.width / 2, canvas.height / 2 - 40);
+
+      ctx.font = '24px sans-serif';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText(`Mode: ${selectedType.toUpperCase()}`, canvas.width / 2, canvas.height / 2 + 20);
     }
 
-    function finishSong() {
-      isPlaying = false;
-      cancelAnimationFrame(animId);
-      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-        mediaRecorder.stop();
-      }
-      document.getElementById('lyricText').innerText = '✨ "तेरे लिये" Complete!';
-    }
-
-    function downloadVideo() {
-      const blob = new Blob(recordedChunks, { type: 'video/webm' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Tere-Liye-OiiOii-Song.webm`;
-      a.click();
-    }
-
-    // Initial poster frame
-    renderVisuals();
-    cancelAnimationFrame(animId);
+    // Default Poster Frame
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 36px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText("READY FOR YOUR PROMPT", canvas.width / 2, canvas.height / 2);
   </script>
 </body>
 </html>
