@@ -45,7 +45,7 @@
     <button onclick="cancelPlacement()" class="text-slate-900 font-black">✕</button>
   </div>
 
-  <!-- Viewport -->
+  <!-- Main Viewport -->
   <main class="relative w-full max-w-md flex-1 overflow-hidden bg-slate-950">
     <canvas id="spaceCanvas" class="w-full h-full block"></canvas>
 
@@ -188,10 +188,10 @@
     const dpr = window.devicePixelRatio || 1;
     const TILE_W = 110 * dpr;
     const TILE_H = 55 * dpr;
-    const WALL_H = 250 * dpr;
+    const WALL_H = 260 * dpr;
 
-    // Camera with lifted Y to prevent dock clipping
-    let camera = { x: 0, y: -45 * dpr, zoom: 1.0 };
+    // Shift camera Y up by -90*dpr so the entire room is centered and clears the bottom dock
+    let camera = { x: 0, y: -90 * dpr, zoom: 1.0 };
     let isDraggingCam = false;
     let lastTouch = { x: 0, y: 0 };
 
@@ -233,7 +233,8 @@
       { type: 'desk', gx: 2, gy: 1, rot: 0, active: true },
       { type: 'chair', gx: 2, gy: 2, rot: 0 },
       { type: 'sofa', gx: 4, gy: 4, rot: 0 },
-      { type: 'plant', gx: 5, gy: 1, rot: 0 }
+      { type: 'plant', gx: 5, gy: 1, rot: 0 },
+      { type: 'arcade', gx: 4, gy: 1, rot: 0 }
     ];
 
     const motes = Array.from({ length: 24 }, () => ({
@@ -336,7 +337,7 @@
 
     function spawnFriend() {
       if (friends.length >= 4) {
-        alert("Cozy room! Max 4 friends.");
+        alert("Room is cozy! Max 4 friends.");
         return;
       }
       const names = ['Kai', 'Mika', 'Leo', 'Nova'];
@@ -366,7 +367,7 @@
 
     function resetCamera() {
       camera.x = 0;
-      camera.y = -45 * dpr;
+      camera.y = -90 * dpr;
       camera.zoom = 1.0;
       player.targetGx = 3;
       player.targetGy = 3;
@@ -376,14 +377,12 @@
     function update() {
       trafficX = (trafficX + 0.4) % 120;
 
-      // Ripple decay
       for (let i = tapRipples.length - 1; i >= 0; i--) {
         tapRipples[i].r += 1.2 * dpr;
         tapRipples[i].alpha -= 0.04;
         if (tapRipples[i].alpha <= 0) tapRipples.splice(i, 1);
       }
 
-      // Player Movement
       if (player.isMoving) {
         const dx = player.targetGx - player.gx;
         const dy = player.targetGy - player.gy;
@@ -413,7 +412,6 @@
         }
       }
 
-      // Friend AI
       for (let f of friends) {
         if (!f.isMoving && Math.random() < 0.012) {
           f.targetGx = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
@@ -480,6 +478,7 @@
       ctx.fill();
     }
 
+    // SCALED-UP 3D ISOMETRIC FURNITURE (2.2x Larger to fit avatars)
     function render3DFurniture(item, ox, oy) {
       const fIso = toIso(item.gx, item.gy);
       const fx = ox + fIso.x;
@@ -491,87 +490,86 @@
 
       if (item.type === 'bed') {
         // Platform base
-        drawIsoBox(ctx, 0, 0, 70 * dpr * z, 35 * dpr * z, 14 * dpr * z, '#334155', '#1e293b', '#0f172a');
+        drawIsoBox(ctx, 0, 0, 96 * dpr * z, 48 * dpr * z, 18 * dpr * z, '#334155', '#1e293b', '#0f172a');
         // Quilt mattress
-        drawIsoBox(ctx, 0, -4 * dpr * z, 64 * dpr * z, 32 * dpr * z, 12 * dpr * z, '#ec4899', '#db2777', '#be185d');
+        drawIsoBox(ctx, 0, -4 * dpr * z, 88 * dpr * z, 44 * dpr * z, 16 * dpr * z, '#ec4899', '#db2777', '#be185d');
         // Pillows
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.ellipse(-16 * dpr * z, -24 * dpr * z, 10 * dpr * z, 5 * dpr * z, 0, 0, Math.PI * 2);
-        ctx.ellipse(12 * dpr * z, -24 * dpr * z, 10 * dpr * z, 5 * dpr * z, 0, 0, Math.PI * 2);
+        ctx.ellipse(-20 * dpr * z, -32 * dpr * z, 14 * dpr * z, 7 * dpr * z, 0, 0, Math.PI * 2);
+        ctx.ellipse(16 * dpr * z, -32 * dpr * z, 14 * dpr * z, 7 * dpr * z, 0, 0, Math.PI * 2);
         ctx.fill();
       }
       else if (item.type === 'sofa') {
         // Couch base
-        drawIsoBox(ctx, 0, 0, 60 * dpr * z, 30 * dpr * z, 18 * dpr * z, '#6366f1', '#4f46e5', '#3730a3');
+        drawIsoBox(ctx, 0, 0, 84 * dpr * z, 42 * dpr * z, 24 * dpr * z, '#6366f1', '#4f46e5', '#3730a3');
         // Backrest
-        drawIsoBox(ctx, 0, -10 * dpr * z, 60 * dpr * z, 15 * dpr * z, 22 * dpr * z, '#818cf8', '#6366f1', '#4f46e5');
+        drawIsoBox(ctx, 0, -12 * dpr * z, 84 * dpr * z, 20 * dpr * z, 30 * dpr * z, '#818cf8', '#6366f1', '#4f46e5');
       }
       else if (item.type === 'desk') {
-        // Table Legs
+        // Legs
         ctx.fillStyle = '#1e293b';
-        ctx.fillRect(-24 * dpr * z, -16 * dpr * z, 4 * dpr * z, 22 * dpr * z);
-        ctx.fillRect(20 * dpr * z, -16 * dpr * z, 4 * dpr * z, 22 * dpr * z);
-        // Table Surface
-        drawIsoBox(ctx, 0, -16 * dpr * z, 64 * dpr * z, 32 * dpr * z, 8 * dpr * z, '#475569', '#334155', '#1e293b');
-        // Curved monitor
+        ctx.fillRect(-32 * dpr * z, -20 * dpr * z, 5 * dpr * z, 30 * dpr * z);
+        ctx.fillRect(28 * dpr * z, -20 * dpr * z, 5 * dpr * z, 30 * dpr * z);
+        // Tabletop
+        drawIsoBox(ctx, 0, -20 * dpr * z, 86 * dpr * z, 44 * dpr * z, 10 * dpr * z, '#475569', '#334155', '#1e293b');
+        // Dual Curved Monitor
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-16 * dpr * z, -50 * dpr * z, 32 * dpr * z, 18 * dpr * z);
+        ctx.fillRect(-22 * dpr * z, -68 * dpr * z, 44 * dpr * z, 24 * dpr * z);
         ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(-14 * dpr * z, -48 * dpr * z, 28 * dpr * z, 14 * dpr * z);
+        ctx.fillRect(-20 * dpr * z, -66 * dpr * z, 40 * dpr * z, 20 * dpr * z);
       }
       else if (item.type === 'chair') {
-        drawIsoBox(ctx, 0, 0, 24 * dpr * z, 14 * dpr * z, 12 * dpr * z, '#ec4899', '#db2777', '#9d174d');
-        // Back support
+        drawIsoBox(ctx, 0, 0, 36 * dpr * z, 20 * dpr * z, 16 * dpr * z, '#ec4899', '#db2777', '#9d174d');
         ctx.fillStyle = '#ec4899';
-        ctx.fillRect(-10 * dpr * z, -28 * dpr * z, 20 * dpr * z, 16 * dpr * z);
+        ctx.fillRect(-14 * dpr * z, -36 * dpr * z, 28 * dpr * z, 22 * dpr * z);
       }
       else if (item.type === 'plant') {
-        drawIsoBox(ctx, 0, 0, 20 * dpr * z, 12 * dpr * z, 14 * dpr * z, '#ea580c', '#c2410c', '#9a3412');
+        drawIsoBox(ctx, 0, 0, 28 * dpr * z, 16 * dpr * z, 20 * dpr * z, '#ea580c', '#c2410c', '#9a3412');
         ctx.fillStyle = '#10b981';
         ctx.beginPath();
-        ctx.arc(-6 * dpr * z, -24 * dpr * z, 10 * dpr * z, 0, Math.PI * 2);
-        ctx.arc(6 * dpr * z, -28 * dpr * z, 12 * dpr * z, 0, Math.PI * 2);
-        ctx.arc(0, -36 * dpr * z, 12 * dpr * z, 0, Math.PI * 2);
+        ctx.arc(-10 * dpr * z, -32 * dpr * z, 14 * dpr * z, 0, Math.PI * 2);
+        ctx.arc(10 * dpr * z, -38 * dpr * z, 16 * dpr * z, 0, Math.PI * 2);
+        ctx.arc(0, -48 * dpr * z, 16 * dpr * z, 0, Math.PI * 2);
         ctx.fill();
       }
       else if (item.type === 'arcade') {
-        drawIsoBox(ctx, 0, 0, 32 * dpr * z, 20 * dpr * z, 52 * dpr * z, '#0f172a', '#090d16', '#020617');
+        drawIsoBox(ctx, 0, 0, 44 * dpr * z, 26 * dpr * z, 72 * dpr * z, '#0f172a', '#090d16', '#020617');
         ctx.fillStyle = '#ec4899';
-        ctx.fillRect(-12 * dpr * z, -48 * dpr * z, 24 * dpr * z, 6 * dpr * z);
+        ctx.fillRect(-18 * dpr * z, -68 * dpr * z, 36 * dpr * z, 10 * dpr * z);
         ctx.fillStyle = '#06b6d4';
-        ctx.fillRect(-10 * dpr * z, -38 * dpr * z, 20 * dpr * z, 14 * dpr * z);
+        ctx.fillRect(-15 * dpr * z, -54 * dpr * z, 30 * dpr * z, 20 * dpr * z);
       }
       else if (item.type === 'poster') {
-        // Wall hung frame
+        // Vertical wall-hung poster
         ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(-14 * dpr * z, -42 * dpr * z, 28 * dpr * z, 36 * dpr * z);
+        ctx.fillRect(-16 * dpr * z, -50 * dpr * z, 32 * dpr * z, 42 * dpr * z);
         ctx.fillStyle = '#ec4899';
-        ctx.fillRect(-11 * dpr * z, -39 * dpr * z, 22 * dpr * z, 30 * dpr * z);
+        ctx.fillRect(-13 * dpr * z, -47 * dpr * z, 26 * dpr * z, 36 * dpr * z);
       }
       else if (item.type === 'lamp') {
         ctx.fillStyle = '#334155';
-        ctx.fillRect(-3 * dpr * z, -8 * dpr * z, 6 * dpr * z, 6 * dpr * z);
+        ctx.fillRect(-4 * dpr * z, -10 * dpr * z, 8 * dpr * z, 8 * dpr * z);
         ctx.fillStyle = '#f43f5e';
         ctx.beginPath();
-        ctx.roundRect(-5 * dpr * z, -36 * dpr * z, 10 * dpr * z, 26 * dpr * z, 5 * dpr * z);
+        ctx.roundRect(-7 * dpr * z, -48 * dpr * z, 14 * dpr * z, 36 * dpr * z, 7 * dpr * z);
         ctx.fill();
         ctx.shadowColor = '#f43f5e';
-        ctx.shadowBlur = 16 * dpr * z;
+        ctx.shadowBlur = 20 * dpr * z;
       }
 
       ctx.restore();
     }
 
-    // Avatar Rendering
-    function renderAvatar(char, isSelf, ox, oy) {
+    // Avatar Rendering with Offset Speech Bubbles
+    function renderAvatar(char, isSelf, ox, oy, index) {
       const pIso = toIso(char.gx, char.gy);
       const ax = ox + pIso.x;
       const ay = oy + pIso.y + (TILE_H / 2) * camera.zoom;
       const z = camera.zoom;
 
       ctx.beginPath();
-      ctx.ellipse(ax, ay, 18 * dpr * z, 9 * dpr * z, 0, 0, Math.PI * 2);
+      ctx.ellipse(ax, ay, 20 * dpr * z, 10 * dpr * z, 0, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
       ctx.fill();
 
@@ -581,77 +579,79 @@
       // Legs
       if (!char.isSitting) {
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(ax - 7 * dpr * z, ay - 11 * dpr * z + walkBob, 5 * dpr * z, 10 * dpr * z);
-        ctx.fillRect(ax + 2 * dpr * z, ay - 11 * dpr * z - walkBob, 5 * dpr * z, 10 * dpr * z);
+        ctx.fillRect(ax - 8 * dpr * z, ay - 12 * dpr * z + walkBob, 6 * dpr * z, 12 * dpr * z);
+        ctx.fillRect(ax + 2 * dpr * z, ay - 12 * dpr * z - walkBob, 6 * dpr * z, 12 * dpr * z);
       }
 
-      // Body
+      // Body / Torso
       ctx.fillStyle = char.outfitColor;
       ctx.beginPath();
-      ctx.roundRect(ax - 12 * dpr * z, ay - 32 * dpr * z + walkBob + sitOffset, 24 * dpr * z, 22 * dpr * z, 6 * dpr * z);
+      ctx.roundRect(ax - 14 * dpr * z, ay - 36 * dpr * z + walkBob + sitOffset, 28 * dpr * z, 26 * dpr * z, 7 * dpr * z);
       ctx.fill();
 
       // Head
       ctx.fillStyle = char.skinColor || '#fcd34d';
       ctx.beginPath();
-      ctx.arc(ax, ay - 44 * dpr * z + walkBob + sitOffset, 14 * dpr * z, 0, Math.PI * 2);
+      ctx.arc(ax, ay - 50 * dpr * z + walkBob + sitOffset, 16 * dpr * z, 0, Math.PI * 2);
       ctx.fill();
 
       // Hair
       ctx.fillStyle = char.hairColor;
       if (char.direction === 'N') {
         ctx.beginPath();
-        ctx.arc(ax, ay - 45 * dpr * z + walkBob + sitOffset, 15 * dpr * z, 0, Math.PI * 2);
+        ctx.arc(ax, ay - 51 * dpr * z + walkBob + sitOffset, 17 * dpr * z, 0, Math.PI * 2);
         ctx.fill();
       } else {
         ctx.beginPath();
-        ctx.arc(ax, ay - 48 * dpr * z + walkBob + sitOffset, 15 * dpr * z, Math.PI, Math.PI * 2);
+        ctx.arc(ax, ay - 54 * dpr * z + walkBob + sitOffset, 17 * dpr * z, Math.PI, Math.PI * 2);
         ctx.fill();
 
+        // Eyes
         ctx.fillStyle = '#000000';
         if (char.direction === 'S') {
-          ctx.fillRect(ax - 5 * dpr * z, ay - 43 * dpr * z + walkBob + sitOffset, 3 * dpr * z, 4 * dpr * z);
-          ctx.fillRect(ax + 2 * dpr * z, ay - 43 * dpr * z + walkBob + sitOffset, 3 * dpr * z, 4 * dpr * z);
+          ctx.fillRect(ax - 6 * dpr * z, ay - 49 * dpr * z + walkBob + sitOffset, 3.5 * dpr * z, 4.5 * dpr * z);
+          ctx.fillRect(ax + 2.5 * dpr * z, ay - 49 * dpr * z + walkBob + sitOffset, 3.5 * dpr * z, 4.5 * dpr * z);
         } else if (char.direction === 'E') {
-          ctx.fillRect(ax + 4 * dpr * z, ay - 43 * dpr * z + walkBob + sitOffset, 3 * dpr * z, 4 * dpr * z);
+          ctx.fillRect(ax + 5 * dpr * z, ay - 49 * dpr * z + walkBob + sitOffset, 3.5 * dpr * z, 4.5 * dpr * z);
         } else if (char.direction === 'W') {
-          ctx.fillRect(ax - 7 * dpr * z, ay - 43 * dpr * z + walkBob + sitOffset, 3 * dpr * z, 4 * dpr * z);
+          ctx.fillRect(ax - 8 * dpr * z, ay - 49 * dpr * z + walkBob + sitOffset, 3.5 * dpr * z, 4.5 * dpr * z);
         }
       }
 
-      // Name Badge
-      ctx.font = `bold ${8 * dpr * z}px sans-serif`;
+      // Name Tag
+      ctx.font = `bold ${9 * dpr * z}px sans-serif`;
       ctx.fillStyle = isSelf ? '#ec4899' : '#06b6d4';
       ctx.textAlign = 'center';
-      ctx.fillText(char.name || 'Friend', ax, ay - 60 * dpr * z + walkBob + sitOffset);
+      ctx.fillText(char.name || 'Friend', ax, ay - 72 * dpr * z + walkBob + sitOffset);
 
       // Emote
       if (char.emoteTimer > 0) {
-        ctx.font = `${24 * dpr * z}px sans-serif`;
+        ctx.font = `${26 * dpr * z}px sans-serif`;
         ctx.textAlign = 'center';
-        ctx.fillText(char.emote, ax, ay - 72 * dpr * z + walkBob + sitOffset);
+        ctx.fillText(char.emote, ax, ay - 86 * dpr * z + walkBob + sitOffset);
       }
 
-      // Speech Bubble
+      // Staggered Speech Bubbles (prevents text overlap)
       if (char.bubbleTimer > 0 && char.bubbleText) {
-        ctx.font = `bold ${10 * dpr * z}px sans-serif`;
+        ctx.font = `bold ${11 * dpr * z}px sans-serif`;
         const textWidth = ctx.measureText(char.bubbleText).width;
-        const bubbleW = textWidth + 18 * dpr * z;
-        const bubbleH = 24 * dpr * z;
+        const bubbleW = textWidth + 20 * dpr * z;
+        const bubbleH = 26 * dpr * z;
+        const verticalStagger = (index % 2) * (28 * dpr * z);
         const bx = ax - bubbleW / 2;
-        const by = ay - 88 * dpr * z + walkBob + sitOffset;
+        const by = ay - 100 * dpr * z + walkBob + sitOffset - verticalStagger;
 
         ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
         ctx.strokeStyle = isSelf ? '#ec4899' : '#06b6d4';
-        ctx.lineWidth = 1.5 * dpr;
+        ctx.lineWidth = 2 * dpr;
         ctx.beginPath();
-        ctx.roundRect(bx, by, bubbleW, bubbleH, 7 * dpr * z);
+        ctx.roundRect(bx, by, bubbleW, bubbleH, 8 * dpr * z);
         ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = '#ffffff';
         ctx.textAlign = 'center';
-        ctx.fillText(char.bubbleText, ax, by + 16 * dpr * z);
+        ctx.fillText(char.bubbleText, ax, by + 17 * dpr * z);
       }
     }
 
@@ -669,10 +669,9 @@
         wallLeft = '#064e3b'; wallRight = '#065f46'; tileA = '#022c22'; tileB = '#044e3d'; trimColor = '#10b981';
       }
 
-      // Lighting Overrides
-      if (lightingMode === 1) { // Sunset
+      if (lightingMode === 1) {
         wallLeft = '#451a03'; wallRight = '#7c2d12';
-      } else if (lightingMode === 2) { // Day
+      } else if (lightingMode === 2) {
         wallLeft = '#1e293b'; wallRight = '#334155';
       }
 
@@ -700,27 +699,27 @@
       ctx.closePath();
       ctx.fill();
 
-      // Window Frame & City View
-      const winGrad = ctx.createLinearGradient(ox - 70 * dpr * z, oy - 140 * dpr * z, ox - 10 * dpr * z, oy - 50 * dpr * z);
-      winGrad.addColorStop(0, lightingMode === 1 ? 'rgba(249, 115, 22, 0.7)' : 'rgba(6, 182, 212, 0.6)');
-      winGrad.addColorStop(1, 'rgba(236, 72, 153, 0.4)');
+      // Cyber Window & Animated Skyline
+      const winGrad = ctx.createLinearGradient(ox - 80 * dpr * z, oy - 160 * dpr * z, ox - 10 * dpr * z, oy - 60 * dpr * z);
+      winGrad.addColorStop(0, lightingMode === 1 ? 'rgba(249, 115, 22, 0.8)' : 'rgba(6, 182, 212, 0.7)');
+      winGrad.addColorStop(1, 'rgba(236, 72, 153, 0.5)');
       ctx.fillStyle = winGrad;
       ctx.strokeStyle = '#06b6d4';
-      ctx.lineWidth = 2.5 * dpr * z;
+      ctx.lineWidth = 3 * dpr * z;
       ctx.beginPath();
-      ctx.moveTo(ox - 70 * dpr * z, oy - 140 * dpr * z);
-      ctx.lineTo(ox - 10 * dpr * z, oy - 110 * dpr * z);
-      ctx.lineTo(ox - 10 * dpr * z, oy - 50 * dpr * z);
-      ctx.lineTo(ox - 70 * dpr * z, oy - 80 * dpr * z);
+      ctx.moveTo(ox - 80 * dpr * z, oy - 160 * dpr * z);
+      ctx.lineTo(ox - 10 * dpr * z, oy - 125 * dpr * z);
+      ctx.lineTo(ox - 10 * dpr * z, oy - 60 * dpr * z);
+      ctx.lineTo(ox - 80 * dpr * z, oy - 95 * dpr * z);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
-      // Flying vehicle streak
+      // Traffic streak
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(ox - 65 * dpr * z + (trafficX * dpr * 0.45 * z), oy - 100 * dpr * z + (trafficX * dpr * 0.22 * z), 4 * dpr * z, 1.5 * dpr * z);
+      ctx.fillRect(ox - 75 * dpr * z + (trafficX * dpr * 0.45 * z), oy - 115 * dpr * z + (trafficX * dpr * 0.22 * z), 5 * dpr * z, 2 * dpr * z);
 
-      // Floor trim neon seam
+      // Floor Seam Trim
       ctx.strokeStyle = trimColor;
       ctx.lineWidth = 3 * dpr * z;
       ctx.beginPath();
@@ -729,7 +728,7 @@
       ctx.lineTo(ox + cornerRight.x, oy + cornerRight.y);
       ctx.stroke();
 
-      // Floor Grid
+      // Floor Tiles
       for (let x = 0; x < GRID_SIZE; x++) {
         for (let y = 0; y < GRID_SIZE; y++) {
           const iso = toIso(x, y);
@@ -769,7 +768,7 @@
         ctx.stroke();
       }
 
-      // Ambient motes
+      // Dust Motes
       ctx.fillStyle = 'rgba(236, 72, 153, 0.4)';
       for (let m of motes) {
         ctx.beginPath();
@@ -777,23 +776,23 @@
         ctx.fill();
       }
 
-      // Movement indicator
+      // Destination Marker
       if (player.isMoving) {
         const tIso = toIso(player.targetGx, player.targetGy);
         const tx = ox + tIso.x;
         const ty = oy + tIso.y + (TILE_H / 2) * z;
         ctx.beginPath();
-        ctx.ellipse(tx, ty, 18 * dpr * z, 9 * dpr * z, 0, 0, Math.PI * 2);
+        ctx.ellipse(tx, ty, 20 * dpr * z, 10 * dpr * z, 0, 0, Math.PI * 2);
         ctx.strokeStyle = '#ec4899';
-        ctx.lineWidth = 2 * dpr;
+        ctx.lineWidth = 2.5 * dpr;
         ctx.stroke();
       }
 
-      // Y-Sorted Entity Render
+      // Y-Sorted Entities
       const renderList = [
         ...furniture.map(f => ({ type: 'furniture', data: f, depth: f.gx + f.gy })),
-        ...friends.map(fr => ({ type: 'friend', data: fr, depth: fr.gx + fr.gy })),
-        { type: 'player', data: player, depth: player.gx + player.gy }
+        ...friends.map((fr, idx) => ({ type: 'friend', data: fr, depth: fr.gx + fr.gy, idx })),
+        { type: 'player', data: player, depth: player.gx + player.gy, idx: 0 }
       ];
 
       renderList.sort((a, b) => a.depth - b.depth);
@@ -802,9 +801,9 @@
         if (ent.type === 'furniture') {
           render3DFurniture(ent.data, ox, oy);
         } else if (ent.type === 'friend') {
-          renderAvatar(ent.data, false, ox, oy);
+          renderAvatar(ent.data, false, ox, oy, ent.idx);
         } else {
-          renderAvatar(ent.data, true, ox, oy);
+          renderAvatar(ent.data, true, ox, oy, ent.idx);
         }
       }
 
