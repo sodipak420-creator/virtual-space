@@ -80,7 +80,7 @@
           <button onclick="cycleLighting()" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">💡</button>
           <button onclick="triggerEmote('💖')" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">💖</button>
           <button onclick="triggerEmote('👋')" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">👋</button>
-          <button onclick="triggerEmote('🔥')" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">🔥</button>
+          <button onclick="triggerEmote('🔥')" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">🔥</button>
         </div>
       </div>
     </div>
@@ -190,7 +190,7 @@
     const TILE_H = 55 * dpr;
     const WALL_H = 260 * dpr;
 
-    // Shift camera Y up by -90*dpr so the entire room is centered and clears the bottom dock
+    // Centered vertical alignment offset to keep floor cleanly above bottom interface
     let camera = { x: 0, y: -90 * dpr, zoom: 1.0 };
     let isDraggingCam = false;
     let lastTouch = { x: 0, y: 0 };
@@ -445,7 +445,7 @@
       }
     }
 
-    // TRUE EXTRUDED ISOMETRIC 3D SOLIDS
+    // Extruded Isometric Solid Primitives
     function drawIsoBox(ctx, x, y, w, h, height, topCol, leftCol, rightCol) {
       // Top face
       ctx.fillStyle = topCol;
@@ -478,7 +478,7 @@
       ctx.fill();
     }
 
-    // SCALED-UP 3D ISOMETRIC FURNITURE (2.2x Larger to fit avatars)
+    // Isometric Furniture Models
     function render3DFurniture(item, ox, oy) {
       const fIso = toIso(item.gx, item.gy);
       const fx = ox + fIso.x;
@@ -541,7 +541,6 @@
         ctx.fillRect(-15 * dpr * z, -54 * dpr * z, 30 * dpr * z, 20 * dpr * z);
       }
       else if (item.type === 'poster') {
-        // Vertical wall-hung poster
         ctx.fillStyle = '#f59e0b';
         ctx.fillRect(-16 * dpr * z, -50 * dpr * z, 32 * dpr * z, 42 * dpr * z);
         ctx.fillStyle = '#ec4899';
@@ -561,7 +560,7 @@
       ctx.restore();
     }
 
-    // Avatar Rendering with Offset Speech Bubbles
+    // Avatar Rendering
     function renderAvatar(char, isSelf, ox, oy, index) {
       const pIso = toIso(char.gx, char.gy);
       const ax = ox + pIso.x;
@@ -631,7 +630,7 @@
         ctx.fillText(char.emote, ax, ay - 86 * dpr * z + walkBob + sitOffset);
       }
 
-      // Staggered Speech Bubbles (prevents text overlap)
+      // Speech Bubble
       if (char.bubbleTimer > 0 && char.bubbleText) {
         ctx.font = `bold ${11 * dpr * z}px sans-serif`;
         const textWidth = ctx.measureText(char.bubbleText).width;
