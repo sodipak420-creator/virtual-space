@@ -38,14 +38,14 @@
     </div>
   </header>
 
-  <!-- Placement Notification Banner -->
+  <!-- Placement Banner -->
   <div id="placementBanner" class="hidden absolute top-14 z-30 bg-emerald-500 text-slate-950 text-xs font-black px-4 py-2 rounded-2xl shadow-xl flex items-center gap-3">
     <span id="placementNotice">Tap floor or wall to place</span>
     <button onclick="rotatePending()" class="bg-slate-900 text-white px-2 py-0.5 rounded-lg text-[10px]">🔄 Turn (<span id="rotDeg">0°</span>)</button>
     <button onclick="cancelPlacement()" class="text-slate-900 font-black">✕</button>
   </div>
 
-  <!-- Interactive Viewport -->
+  <!-- Main Viewport -->
   <main class="relative w-full max-w-md flex-1 overflow-hidden bg-slate-950">
     <canvas id="spaceCanvas" class="w-full h-full block"></canvas>
 
@@ -129,7 +129,7 @@
     <!-- 3D Decor Catalog Modal -->
     <div id="decorModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Decor & Props</span>
+        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Decor Catalog</span>
         <button onclick="toggleModal('decorModal')" class="text-xs text-slate-400 px-2 py-0.5">✕</button>
       </div>
       <div class="grid grid-cols-4 gap-2 text-xs max-h-56 overflow-y-auto">
@@ -139,11 +139,11 @@
         </button>
         <button onclick="startPlacement('bed')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🛏️</span>
-          <span class="text-[9px] text-slate-300">Cozy Bed</span>
+          <span class="text-[9px] text-slate-300">Platform Bed</span>
         </button>
         <button onclick="startPlacement('sofa')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🛋️</span>
-          <span class="text-[9px] text-slate-300">Lounge</span>
+          <span class="text-[9px] text-slate-300">Sectional</span>
         </button>
         <button onclick="startPlacement('plant')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🪴</span>
@@ -190,10 +190,16 @@
     const TILE_H = 53 * dpr;
     const WALL_H = 260 * dpr;
 
-    // Room camera centered safely above bottom dock
+    // Shift camera Y up by -190px to place entire room safely above the bottom chat bar
     let camera = { x: 0, y: -190 * dpr, zoom: 1.0 };
     let isDraggingCam = false;
     let lastTouch = { x: 0, y: 0 };
+
+    // Clear stale, incompatible legacy layouts
+    if (localStorage.getItem('oiioii_version') !== 'v3.0') {
+      localStorage.removeItem('oiioii_decor');
+      localStorage.setItem('oiioii_version', 'v3.0');
+    }
 
     const savedHair = localStorage.getItem('oiioii_hair') || '#06b6d4';
     const savedOutfit = localStorage.getItem('oiioii_outfit') || '#ffffff';
@@ -201,7 +207,7 @@
     const savedFurniture = localStorage.getItem('oiioii_decor');
 
     let currentTheme = savedTheme;
-    let lightingMode = 0; // 0: Night, 1: Sunset, 2: Day, 3: Matrix
+    let lightingMode = 0;
     let pendingItemType = null;
     let pendingRot = 0;
     let hoveredGrid = null;
@@ -343,7 +349,6 @@
       playSFX('tap');
     }
 
-    // Spawn Friends & Avoid Solid Obstacles
     function isTileSolid(x, y) {
       const hit = furniture.find(f => f.gx === x && f.gy === y && !f.isWall);
       return hit && (hit.type === 'arcade' || hit.type === 'desk' || hit.type === 'plant');
@@ -440,7 +445,7 @@
         }
       }
 
-      // Friends Autonomous AI
+      // Autonomous Visitor Friends
       for (let f of friends) {
         if (!f.isMoving && Math.random() < 0.012) {
           const rx = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
@@ -481,7 +486,7 @@
       }
     }
 
-    // Precise Isometric Solid Extrusion
+    // Extruded Isometric Geometry Engine
     function drawIsoBox(ctx, x, y, w, h, height, topCol, leftCol, rightCol) {
       ctx.fillStyle = topCol;
       ctx.beginPath();
@@ -511,14 +516,14 @@
       ctx.fill();
     }
 
-    // High-Resolution Isometric Furniture Rendering
+    // High-Resolution Isometric Vector Models
     function render3DFurniture(item, ox, oy) {
       const z = camera.zoom;
 
-      // Handle Wall Mounted Decor (Snaps to angled wall planes)
+      // Wall Mounted Snap
       if (item.isWall) {
-        const isLeftWall = item.wallSide !== 'right';
-        const wallX = isLeftWall ? (ox - 70 * dpr * z) : (ox + 70 * dpr * z);
+        const isLeft = item.wallSide !== 'right';
+        const wallX = isLeft ? (ox - 70 * dpr * z) : (ox + 70 * dpr * z);
         const wallY = oy - 80 * dpr * z - (item.gy * 18 * dpr * z);
 
         ctx.save();
@@ -558,29 +563,27 @@
       if (item.type === 'bed') {
         // Platform Base
         drawIsoBox(ctx, 0, 0, 96 * dpr * z, 48 * dpr * z, 18 * dpr * z, '#334155', '#1e293b', '#0f172a');
-        // Duvet Mattress
+        // Duvet Quilt
         drawIsoBox(ctx, 0, -4 * dpr * z, 88 * dpr * z, 44 * dpr * z, 16 * dpr * z, '#ec4899', '#db2777', '#be185d');
         // Pillows
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.ellipse(-20 * dpr * z, -32 * dpr * z, 14 * dpr * z, 7 * dpr * z, 0, 0, Math.PI * 2);
-        ctx.ellipse(16 * dpr * z, -32 * dpr * z, 14 * dpr * z, 7 * dpr * z, 0, 0, Math.PI * 2);
+        ctx.ellipse(-20 * dpr * z, -30 * dpr * z, 14 * dpr * z, 7 * dpr * z, 0, 0, Math.PI * 2);
+        ctx.ellipse(16 * dpr * z, -30 * dpr * z, 14 * dpr * z, 7 * dpr * z, 0, 0, Math.PI * 2);
         ctx.fill();
       }
       else if (item.type === 'sofa') {
-        // Modern Sectional Couch
+        // Sectional Lounge
         drawIsoBox(ctx, 0, 0, 84 * dpr * z, 42 * dpr * z, 24 * dpr * z, '#6366f1', '#4f46e5', '#3730a3');
-        // Back Cushion
+        // Backrest
         drawIsoBox(ctx, 0, -12 * dpr * z, 84 * dpr * z, 20 * dpr * z, 30 * dpr * z, '#818cf8', '#6366f1', '#4f46e5');
       }
       else if (item.type === 'desk') {
-        // Minimalist Dark Legs
+        // Workstation
         ctx.fillStyle = '#1e293b';
         ctx.fillRect(-32 * dpr * z, -20 * dpr * z, 5 * dpr * z, 30 * dpr * z);
         ctx.fillRect(28 * dpr * z, -20 * dpr * z, 5 * dpr * z, 30 * dpr * z);
-        // Desk Surface
         drawIsoBox(ctx, 0, -20 * dpr * z, 86 * dpr * z, 44 * dpr * z, 10 * dpr * z, '#475569', '#334155', '#1e293b');
-        // Dual Curved Glowing Displays
         ctx.fillStyle = '#0f172a';
         ctx.fillRect(-22 * dpr * z, -68 * dpr * z, 44 * dpr * z, 24 * dpr * z);
         ctx.fillStyle = item.active !== false ? '#38bdf8' : '#1e293b';
@@ -623,14 +626,14 @@
       ctx.restore();
     }
 
-    // High-Detail Chibi Avatar Renderer
+    // High-Resolution Chibi Avatar Renderer (Applied to player & visitor bots)
     function renderAvatar(char, isSelf, ox, oy, index) {
       const pIso = toIso(char.gx, char.gy);
       const ax = ox + pIso.x;
       const ay = oy + pIso.y + (TILE_H / 2) * camera.zoom;
       const z = camera.zoom;
 
-      // Drop Shadow
+      // Soft Drop Shadow
       ctx.beginPath();
       ctx.ellipse(ax, ay, 18 * dpr * z, 9 * dpr * z, 0, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
@@ -639,7 +642,7 @@
       const walkBob = char.isMoving ? Math.sin(Date.now() * 0.02) * (4 * dpr * z) : 0;
       const sitOffset = char.isSitting ? 12 * dpr * z : 0;
 
-      // Legs / Shoes (Tucked when seated)
+      // Walking Legs / Shoes (Tucked when seated)
       if (!char.isSitting) {
         ctx.fillStyle = '#0f172a';
         ctx.fillRect(ax - 7 * dpr * z, ay - 12 * dpr * z + walkBob, 5 * dpr * z, 12 * dpr * z);
@@ -666,18 +669,19 @@
       ctx.arc(ax, ay - 48 * dpr * z + walkBob + sitOffset, 15 * dpr * z, 0, Math.PI * 2);
       ctx.fill();
 
-      // Hair
+      // Layered Anime Hair & Eyes
       ctx.fillStyle = char.hairColor;
       if (char.direction === 'N') {
         ctx.beginPath();
         ctx.arc(ax, ay - 49 * dpr * z + walkBob + sitOffset, 16 * dpr * z, 0, Math.PI * 2);
         ctx.fill();
       } else {
-        // Styled Bangs
+        // Haircap
         ctx.beginPath();
         ctx.arc(ax, ay - 52 * dpr * z + walkBob + sitOffset, 16 * dpr * z, Math.PI, Math.PI * 2);
         ctx.fill();
 
+        // Bangs
         ctx.beginPath();
         ctx.moveTo(ax - 15 * dpr * z, ay - 52 * dpr * z + walkBob + sitOffset);
         ctx.lineTo(ax - 8 * dpr * z, ay - 44 * dpr * z + walkBob + sitOffset);
@@ -686,7 +690,7 @@
         ctx.lineTo(ax + 15 * dpr * z, ay - 52 * dpr * z + walkBob + sitOffset);
         ctx.fill();
 
-        // Anime Eyes with Glints
+        // Expressive Eyes with Catchlight Glints
         if (char.direction === 'S') {
           ctx.fillStyle = '#0f172a';
           ctx.fillRect(ax - 7 * dpr * z, ay - 48 * dpr * z + walkBob + sitOffset, 4 * dpr * z, 5 * dpr * z);
@@ -723,27 +727,30 @@
         ctx.fillText(char.emote, ax, ay - 84 * dpr * z + walkBob + sitOffset);
       }
 
-      // Speech Bubble
+      // Screen-Safe Speech Bubble (prevents edge truncation)
       if (char.bubbleTimer > 0 && char.bubbleText) {
         ctx.font = `bold ${11 * dpr * z}px sans-serif`;
         const textWidth = ctx.measureText(char.bubbleText).width;
         const bubbleW = textWidth + 20 * dpr * z;
         const bubbleH = 26 * dpr * z;
         const verticalStagger = (index % 2) * (28 * dpr * z);
-        const bx = ax - bubbleW / 2;
-        const by = ay - 98 * dpr * z + walkBob + sitOffset - verticalStagger;
+
+        // Clamps bubble X safely within viewport boundaries
+        let bubbleX = ax - bubbleW / 2;
+        bubbleX = Math.max(12 * dpr, Math.min(W - bubbleW - 12 * dpr, bubbleX));
+        const bubbleY = ay - 98 * dpr * z + walkBob + sitOffset - verticalStagger;
 
         ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
         ctx.strokeStyle = isSelf ? '#ec4899' : '#06b6d4';
         ctx.lineWidth = 2 * dpr;
         ctx.beginPath();
-        ctx.roundRect(bx, by, bubbleW, bubbleH, 8 * dpr * z);
+        ctx.roundRect(bubbleX, bubbleY, bubbleW, bubbleH, 8 * dpr * z);
         ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = '#ffffff';
         ctx.textAlign = 'center';
-        ctx.fillText(char.bubbleText, ax, by + 17 * dpr * z);
+        ctx.fillText(char.bubbleText, bubbleX + bubbleW / 2, bubbleY + 17 * dpr * z);
       }
     }
 
@@ -809,7 +816,7 @@
       ctx.fill();
       ctx.stroke();
 
-      // Passing Aerial Cruiser in window
+      // Passing Aerial Cruiser
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(ox - 75 * dpr * z + (trafficX * dpr * 0.45 * z), oy - 115 * dpr * z + (trafficX * dpr * 0.22 * z), 5 * dpr * z, 2 * dpr * z);
 
@@ -862,7 +869,7 @@
         ctx.stroke();
       }
 
-      // Dust Particles
+      // Ambient Dust Particles
       ctx.fillStyle = 'rgba(236, 72, 153, 0.4)';
       for (let m of motes) {
         ctx.beginPath();
@@ -870,7 +877,7 @@
         ctx.fill();
       }
 
-      // Walk Destination Target
+      // Target Movement Circle
       if (player.isMoving) {
         const tIso = toIso(player.targetGx, player.targetGy);
         const tx = ox + tIso.x;
@@ -882,7 +889,7 @@
         ctx.stroke();
       }
 
-      // Y-Sorted Depth Queue (Wall decor first, then floor entities)
+      // Depth Sorted Rendering
       const renderList = [
         ...furniture.map(f => ({ type: 'furniture', data: f, depth: f.isWall ? -10 : (f.gx + f.gy) })),
         ...friends.map((fr, idx) => ({ type: 'friend', data: fr, depth: fr.gx + fr.gy, idx })),
@@ -921,7 +928,7 @@
       tapRipples.push({ x: clickX, y: clickY, r: 4 * dpr, alpha: 0.9 });
       playSFX('tap');
 
-      // Check if clicking near back-wall in placement mode for wall decor
+      // Wall Placement Detection
       if (pendingItemType === 'poster') {
         const isLeft = clickX < (W / 2 + camera.x);
         furniture.push({
@@ -970,7 +977,6 @@
           return;
         }
 
-        // Move Player to Selected Tile
         player.targetGx = tx;
         player.targetGy = ty;
         player.isMoving = true;
