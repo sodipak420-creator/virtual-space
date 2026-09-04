@@ -15,6 +15,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 flex flex-col items-center justify-between select-none font-sans">
 
+  <!-- Header HUD -->
   <header id="topHud" class="w-full max-w-md flex items-center justify-between px-3 py-2 bg-slate-900/90 backdrop-blur z-20 border-b border-slate-800">
     <div class="flex items-center gap-2">
       <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -37,17 +38,21 @@
     </div>
   </header>
 
+  <!-- Placement Notification Banner -->
   <div id="placementBanner" class="hidden absolute top-14 z-30 bg-emerald-500 text-slate-950 text-xs font-black px-4 py-2 rounded-2xl shadow-xl flex items-center gap-3">
-    <span>Tap floor/wall to place</span>
+    <span id="placementNotice">Tap floor or wall to place</span>
     <button onclick="rotatePending()" class="bg-slate-900 text-white px-2 py-0.5 rounded-lg text-[10px]">🔄 Turn (<span id="rotDeg">0°</span>)</button>
     <button onclick="cancelPlacement()" class="text-slate-900 font-black">✕</button>
   </div>
 
+  <!-- Interactive Viewport -->
   <main class="relative w-full max-w-md flex-1 overflow-hidden bg-slate-950">
     <canvas id="spaceCanvas" class="w-full h-full block"></canvas>
 
+    <!-- Bottom Controls & Chat -->
     <div id="hudBottom" class="absolute bottom-3 inset-x-3 flex flex-col gap-2 pointer-events-none z-10 transition-opacity">
       
+      <!-- Chat Form -->
       <form onsubmit="handleChat(event)" class="flex gap-1.5 pointer-events-auto">
         <input id="chatInput" type="text" placeholder="Chat with visitors..." maxlength="45" class="flex-1 bg-slate-900/90 backdrop-blur border border-slate-700 text-xs px-3 py-2 rounded-xl text-white outline-none focus:border-pink-500 placeholder-slate-500" />
         <button type="submit" class="px-4 bg-pink-500 active:scale-95 text-slate-950 font-black text-xs rounded-xl shadow-md">
@@ -55,6 +60,7 @@
         </button>
       </form>
 
+      <!-- Action Row -->
       <div class="flex justify-between items-center">
         <div class="flex gap-1.5 pointer-events-auto">
           <button onclick="resetCamera()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-slate-300 active:scale-95">
@@ -79,19 +85,20 @@
       </div>
     </div>
 
+    <!-- Wardrobe Modal -->
     <div id="wardrobeModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
         <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Avatar Studio</span>
         <button onclick="toggleModal('wardrobeModal')" class="text-xs text-slate-400 px-2 py-0.5">✕</button>
       </div>
       <div class="flex items-center justify-between text-xs">
-        <span class="font-bold text-slate-300">Hair Color:</span>
+        <span class="font-bold text-slate-300">Hair:</span>
         <div class="flex gap-2">
           <button onclick="setHair('#06b6d4')" class="w-6 h-6 rounded-full bg-cyan-400 border-2 border-white/50 active:scale-90"></button>
           <button onclick="setHair('#f59e0b')" class="w-6 h-6 rounded-full bg-amber-500 border-2 border-white/50 active:scale-90"></button>
           <button onclick="setHair('#ec4899')" class="w-6 h-6 rounded-full bg-pink-500 border-2 border-white/50 active:scale-90"></button>
           <button onclick="setHair('#10b981')" class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white/50 active:scale-90"></button>
-          <button onclick="setHair('#334155')" class="w-6 h-6 rounded-full bg-slate-700 border-2 border-white/50 active:scale-90"></button>
+          <button onclick="setHair('#1e293b')" class="w-6 h-6 rounded-full bg-slate-800 border-2 border-white/50 active:scale-90"></button>
         </div>
       </div>
       <div class="flex items-center justify-between text-xs">
@@ -106,35 +113,37 @@
       </div>
     </div>
 
+    <!-- Theme Modal -->
     <div id="themeModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Room Themes</span>
+        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Room Architecture & Themes</span>
         <button onclick="toggleModal('themeModal')" class="text-xs text-slate-400 px-2 py-0.5">✕</button>
       </div>
       <div class="grid grid-cols-3 gap-2 text-xs">
         <button onclick="setRoomTheme('cyber')" class="p-2.5 bg-slate-800 rounded-xl border border-slate-700 text-center font-bold">🌌 Cyber</button>
         <button onclick="setRoomTheme('wood')" class="p-2.5 bg-slate-800 rounded-xl border border-slate-700 text-center font-bold">🪵 Warm Loft</button>
-        <button onclick="setRoomTheme('mint')" class="p-2.5 bg-slate-800 rounded-xl border border-slate-700 text-center font-bold">🌿 Mint</button>
+        <button onclick="setRoomTheme('mint')" class="p-2.5 bg-slate-800 rounded-xl border border-slate-700 text-center font-bold">🌿 Mint Studio</button>
       </div>
     </div>
 
+    <!-- 3D Decor Catalog Modal -->
     <div id="decorModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">3D Furniture Catalog</span>
+        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Decor & Props</span>
         <button onclick="toggleModal('decorModal')" class="text-xs text-slate-400 px-2 py-0.5">✕</button>
       </div>
       <div class="grid grid-cols-4 gap-2 text-xs max-h-56 overflow-y-auto">
         <button onclick="startPlacement('desk')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🖥️</span>
-          <span class="text-[9px] text-slate-300">Desk 3D</span>
+          <span class="text-[9px] text-slate-300">Desk Pro</span>
         </button>
         <button onclick="startPlacement('bed')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🛏️</span>
-          <span class="text-[9px] text-slate-300">Bed 3D</span>
+          <span class="text-[9px] text-slate-300">Cozy Bed</span>
         </button>
         <button onclick="startPlacement('sofa')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🛋️</span>
-          <span class="text-[9px] text-slate-300">Sofa 3D</span>
+          <span class="text-[9px] text-slate-300">Lounge</span>
         </button>
         <button onclick="startPlacement('plant')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🪴</span>
@@ -142,35 +151,19 @@
         </button>
         <button onclick="startPlacement('chair')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🪑</span>
-          <span class="text-[9px] text-slate-300">Chair</span>
+          <span class="text-[9px] text-slate-300">Ergo Chair</span>
         </button>
         <button onclick="startPlacement('arcade')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🕹️</span>
-          <span class="text-[9px] text-slate-300">Arcade</span>
+          <span class="text-[9px] text-slate-300">Arcade Rig</span>
         </button>
         <button onclick="startPlacement('lamp')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">💡</span>
           <span class="text-[9px] text-slate-300">Lava Lamp</span>
         </button>
-        <button onclick="startPlacement('table')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-base">☕</span>
-          <span class="text-[9px] text-slate-300">Coffee Tbl</span>
-        </button>
-        <button onclick="startPlacement('shelf')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-base">📚</span>
-          <span class="text-[9px] text-slate-300">Bookshelf</span>
-        </button>
         <button onclick="startPlacement('poster')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🖼️</span>
-          <span class="text-[9px] text-slate-300">Poster</span>
-        </button>
-        <button onclick="startPlacement('neonheart')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-base">💖</span>
-          <span class="text-[9px] text-slate-300">Neon Sign</span>
-        </button>
-        <button onclick="startPlacement('beanbag')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-base">🟣</span>
-          <span class="text-[9px] text-slate-300">Beanbag</span>
+          <span class="text-[9px] text-slate-300">Wall Poster</span>
         </button>
       </div>
     </div>
@@ -197,8 +190,8 @@
     const TILE_H = 53 * dpr;
     const WALL_H = 260 * dpr;
 
-    // Camera offset -185*dpr lifts the entire room floor well above the chatbar
-    let camera = { x: 0, y: -185 * dpr, zoom: 1.0 };
+    // Room camera centered safely above bottom dock
+    let camera = { x: 0, y: -190 * dpr, zoom: 1.0 };
     let isDraggingCam = false;
     let lastTouch = { x: 0, y: 0 };
 
@@ -242,7 +235,7 @@
       { type: 'sofa', gx: 4, gy: 4, rot: 0 },
       { type: 'plant', gx: 5, gy: 1, rot: 0 },
       { type: 'arcade', gx: 4, gy: 1, rot: 0, active: true },
-      { type: 'poster', gx: 0, gy: 2, rot: 0 }
+      { type: 'poster', gx: 0, gy: 2, rot: 0, isWall: true, wallSide: 'left' }
     ];
 
     const motes = Array.from({ length: 24 }, () => ({
@@ -275,7 +268,7 @@
       return { gx, gy };
     }
 
-    // Audio SFX & Synthesizer
+    // Audio SFX Engine
     let audioCtx = null;
     let isPlayingAudio = false;
     let audioInterval = null;
@@ -350,17 +343,34 @@
       playSFX('tap');
     }
 
+    // Spawn Friends & Avoid Solid Obstacles
+    function isTileSolid(x, y) {
+      const hit = furniture.find(f => f.gx === x && f.gy === y && !f.isWall);
+      return hit && (hit.type === 'arcade' || hit.type === 'desk' || hit.type === 'plant');
+    }
+
     function spawnFriend() {
       if (friends.length >= 4) {
         alert("Room is cozy! Max 4 friends.");
         return;
       }
       const names = ['Kai', 'Mika', 'Leo', 'Nova'];
+      let spawnX = 3, spawnY = 3;
+      for (let attempt = 0; attempt < 10; attempt++) {
+        const rx = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
+        const ry = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
+        if (!isTileSolid(rx, ry)) {
+          spawnX = rx; spawnY = ry;
+          break;
+        }
+      }
+
       friends.push({
         name: names[friends.length],
-        gx: Math.floor(Math.random() * (GRID_SIZE - 2)) + 1,
-        gy: Math.floor(Math.random() * (GRID_SIZE - 2)) + 1,
-        targetGx: 3, targetGy: 3,
+        gx: spawnX,
+        gy: spawnY,
+        targetGx: spawnX,
+        targetGy: spawnY,
         speed: 0.05,
         direction: 'S',
         isMoving: false,
@@ -382,7 +392,7 @@
 
     function resetCamera() {
       camera.x = 0;
-      camera.y = -185 * dpr;
+      camera.y = -190 * dpr;
       camera.zoom = 1.0;
       player.targetGx = 3;
       player.targetGy = 3;
@@ -398,6 +408,7 @@
         if (tapRipples[i].alpha <= 0) tapRipples.splice(i, 1);
       }
 
+      // Player Movement
       if (player.isMoving) {
         const dx = player.targetGx - player.gx;
         const dy = player.targetGy - player.gy;
@@ -414,8 +425,8 @@
           player.gy = player.targetGy;
           player.isMoving = false;
 
-          const currentTile = furniture.find(f => f.gx === Math.round(player.gx) && f.gy === Math.round(player.gy));
-          player.isSitting = currentTile && (currentTile.type === 'sofa' || currentTile.type === 'bed' || currentTile.type === 'chair' || currentTile.type === 'beanbag');
+          const currentTile = furniture.find(f => f.gx === Math.round(player.gx) && f.gy === Math.round(player.gy) && !f.isWall);
+          player.isSitting = currentTile && (currentTile.type === 'sofa' || currentTile.type === 'bed' || currentTile.type === 'chair');
           player.isGaming = currentTile && (currentTile.type === 'arcade');
           player.isTyping = currentTile && (currentTile.type === 'desk');
 
@@ -429,11 +440,16 @@
         }
       }
 
+      // Friends Autonomous AI
       for (let f of friends) {
         if (!f.isMoving && Math.random() < 0.012) {
-          f.targetGx = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
-          f.targetGy = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
-          f.isMoving = true;
+          const rx = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
+          const ry = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
+          if (!isTileSolid(rx, ry)) {
+            f.targetGx = rx;
+            f.targetGy = ry;
+            f.isMoving = true;
+          }
         }
         if (f.isMoving) {
           const dx = f.targetGx - f.gx;
@@ -445,9 +461,12 @@
             f.gx = f.targetGx;
             f.gy = f.targetGy;
             f.isMoving = false;
+            const currentTile = furniture.find(item => item.gx === Math.round(f.gx) && item.gy === Math.round(f.gy) && !item.isWall);
+            f.isSitting = currentTile && (currentTile.type === 'sofa' || currentTile.type === 'bed' || currentTile.type === 'chair');
           } else {
             f.gx += (dx / dist) * f.speed;
             f.gy += (dy / dist) * f.speed;
+            f.isSitting = false;
           }
         }
         if (f.bubbleTimer > 0) f.bubbleTimer--;
@@ -462,9 +481,8 @@
       }
     }
 
-    // Extruded Isometric Polygon Engine
+    // Precise Isometric Solid Extrusion
     function drawIsoBox(ctx, x, y, w, h, height, topCol, leftCol, rightCol) {
-      // Top face
       ctx.fillStyle = topCol;
       ctx.beginPath();
       ctx.moveTo(x, y - height);
@@ -474,7 +492,6 @@
       ctx.closePath();
       ctx.fill();
 
-      // Left face
       ctx.fillStyle = leftCol;
       ctx.beginPath();
       ctx.moveTo(x - w / 2, y + h / 2 - height);
@@ -484,7 +501,6 @@
       ctx.closePath();
       ctx.fill();
 
-      // Right face
       ctx.fillStyle = rightCol;
       ctx.beginPath();
       ctx.moveTo(x, y + h - height);
@@ -495,19 +511,56 @@
       ctx.fill();
     }
 
-    // High-Resolution Isometric Furniture Models (2.2x Scale)
+    // High-Resolution Isometric Furniture Rendering
     function render3DFurniture(item, ox, oy) {
+      const z = camera.zoom;
+
+      // Handle Wall Mounted Decor (Snaps to angled wall planes)
+      if (item.isWall) {
+        const isLeftWall = item.wallSide !== 'right';
+        const wallX = isLeftWall ? (ox - 70 * dpr * z) : (ox + 70 * dpr * z);
+        const wallY = oy - 80 * dpr * z - (item.gy * 18 * dpr * z);
+
+        ctx.save();
+        ctx.translate(wallX, wallY);
+
+        if (item.type === 'poster') {
+          ctx.fillStyle = '#f59e0b';
+          ctx.beginPath();
+          ctx.moveTo(-16 * dpr * z, -24 * dpr * z);
+          ctx.lineTo(16 * dpr * z, -8 * dpr * z);
+          ctx.lineTo(16 * dpr * z, 26 * dpr * z);
+          ctx.lineTo(-16 * dpr * z, 10 * dpr * z);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = '#ec4899';
+          ctx.beginPath();
+          ctx.moveTo(-13 * dpr * z, -20 * dpr * z);
+          ctx.lineTo(13 * dpr * z, -6 * dpr * z);
+          ctx.lineTo(13 * dpr * z, 22 * dpr * z);
+          ctx.lineTo(-13 * dpr * z, 8 * dpr * z);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+        return;
+      }
+
+      // Floor-Placed Objects
       const fIso = toIso(item.gx, item.gy);
       const fx = ox + fIso.x;
       const fy = oy + fIso.y + (TILE_H / 2) * camera.zoom;
-      const z = camera.zoom;
 
       ctx.save();
       ctx.translate(fx, fy);
 
       if (item.type === 'bed') {
+        // Platform Base
         drawIsoBox(ctx, 0, 0, 96 * dpr * z, 48 * dpr * z, 18 * dpr * z, '#334155', '#1e293b', '#0f172a');
+        // Duvet Mattress
         drawIsoBox(ctx, 0, -4 * dpr * z, 88 * dpr * z, 44 * dpr * z, 16 * dpr * z, '#ec4899', '#db2777', '#be185d');
+        // Pillows
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.ellipse(-20 * dpr * z, -32 * dpr * z, 14 * dpr * z, 7 * dpr * z, 0, 0, Math.PI * 2);
@@ -515,14 +568,19 @@
         ctx.fill();
       }
       else if (item.type === 'sofa') {
+        // Modern Sectional Couch
         drawIsoBox(ctx, 0, 0, 84 * dpr * z, 42 * dpr * z, 24 * dpr * z, '#6366f1', '#4f46e5', '#3730a3');
+        // Back Cushion
         drawIsoBox(ctx, 0, -12 * dpr * z, 84 * dpr * z, 20 * dpr * z, 30 * dpr * z, '#818cf8', '#6366f1', '#4f46e5');
       }
       else if (item.type === 'desk') {
+        // Minimalist Dark Legs
         ctx.fillStyle = '#1e293b';
         ctx.fillRect(-32 * dpr * z, -20 * dpr * z, 5 * dpr * z, 30 * dpr * z);
         ctx.fillRect(28 * dpr * z, -20 * dpr * z, 5 * dpr * z, 30 * dpr * z);
+        // Desk Surface
         drawIsoBox(ctx, 0, -20 * dpr * z, 86 * dpr * z, 44 * dpr * z, 10 * dpr * z, '#475569', '#334155', '#1e293b');
+        // Dual Curved Glowing Displays
         ctx.fillStyle = '#0f172a';
         ctx.fillRect(-22 * dpr * z, -68 * dpr * z, 44 * dpr * z, 24 * dpr * z);
         ctx.fillStyle = item.active !== false ? '#38bdf8' : '#1e293b';
@@ -561,54 +619,18 @@
           ctx.shadowBlur = 20 * dpr * z;
         }
       }
-      else if (item.type === 'table') {
-        drawIsoBox(ctx, 0, 0, 48 * dpr * z, 24 * dpr * z, 12 * dpr * z, '#475569', '#334155', '#1e293b');
-      }
-      else if (item.type === 'shelf') {
-        ctx.fillStyle = '#78350f';
-        ctx.fillRect(-18 * dpr * z, -65 * dpr * z, 36 * dpr * z, 52 * dpr * z);
-        ctx.fillStyle = '#f43f5e';
-        ctx.fillRect(-14 * dpr * z, -58 * dpr * z, 8 * dpr * z, 14 * dpr * z);
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(-3 * dpr * z, -58 * dpr * z, 8 * dpr * z, 14 * dpr * z);
-        ctx.fillStyle = '#10b981';
-        ctx.fillRect(8 * dpr * z, -38 * dpr * z, 8 * dpr * z, 14 * dpr * z);
-      }
-      else if (item.type === 'poster') {
-        ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(-16 * dpr * z, -65 * dpr * z, 32 * dpr * z, 44 * dpr * z);
-        ctx.fillStyle = '#ec4899';
-        ctx.fillRect(-13 * dpr * z, -62 * dpr * z, 26 * dpr * z, 38 * dpr * z);
-      }
-      else if (item.type === 'neonheart') {
-        ctx.font = `${28 * dpr * z}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.shadowColor = '#ec4899';
-        ctx.shadowBlur = 18 * dpr * z;
-        ctx.fillText('💖', 0, -42 * dpr * z);
-      }
-      else if (item.type === 'beanbag') {
-        ctx.fillStyle = '#a855f7';
-        ctx.beginPath();
-        ctx.ellipse(0, -6 * dpr * z, 26 * dpr * z, 18 * dpr * z, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#9333ea';
-        ctx.beginPath();
-        ctx.ellipse(0, -2 * dpr * z, 20 * dpr * z, 12 * dpr * z, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
 
       ctx.restore();
     }
 
-    // Oiioii Anime-Chibi Sprite Renderer
+    // High-Detail Chibi Avatar Renderer
     function renderAvatar(char, isSelf, ox, oy, index) {
       const pIso = toIso(char.gx, char.gy);
       const ax = ox + pIso.x;
       const ay = oy + pIso.y + (TILE_H / 2) * camera.zoom;
       const z = camera.zoom;
 
-      // Realistic Soft Drop Shadow
+      // Drop Shadow
       ctx.beginPath();
       ctx.ellipse(ax, ay, 18 * dpr * z, 9 * dpr * z, 0, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
@@ -617,14 +639,14 @@
       const walkBob = char.isMoving ? Math.sin(Date.now() * 0.02) * (4 * dpr * z) : 0;
       const sitOffset = char.isSitting ? 12 * dpr * z : 0;
 
-      // Legs / Shoes (Tucked when sitting)
+      // Legs / Shoes (Tucked when seated)
       if (!char.isSitting) {
         ctx.fillStyle = '#0f172a';
         ctx.fillRect(ax - 7 * dpr * z, ay - 12 * dpr * z + walkBob, 5 * dpr * z, 12 * dpr * z);
         ctx.fillRect(ax + 2 * dpr * z, ay - 12 * dpr * z - walkBob, 5 * dpr * z, 12 * dpr * z);
       }
 
-      // Torso / Layered Clothes
+      // Torso / Outfit
       ctx.fillStyle = char.outfitColor;
       ctx.beginPath();
       ctx.roundRect(ax - 13 * dpr * z, ay - 36 * dpr * z + walkBob + sitOffset, 26 * dpr * z, 24 * dpr * z, 6 * dpr * z);
@@ -638,26 +660,24 @@
       ctx.lineTo(ax + 6 * dpr * z, ay - 36 * dpr * z + walkBob + sitOffset);
       ctx.fill();
 
-      // Anime Head
+      // Head
       ctx.fillStyle = char.skinColor || '#fcd34d';
       ctx.beginPath();
       ctx.arc(ax, ay - 48 * dpr * z + walkBob + sitOffset, 15 * dpr * z, 0, Math.PI * 2);
       ctx.fill();
 
-      // Hair & Facial Orientation
+      // Hair
       ctx.fillStyle = char.hairColor;
       if (char.direction === 'N') {
-        // Back hair covering
         ctx.beginPath();
         ctx.arc(ax, ay - 49 * dpr * z + walkBob + sitOffset, 16 * dpr * z, 0, Math.PI * 2);
         ctx.fill();
       } else {
-        // Styled Anime Bangs
+        // Styled Bangs
         ctx.beginPath();
         ctx.arc(ax, ay - 52 * dpr * z + walkBob + sitOffset, 16 * dpr * z, Math.PI, Math.PI * 2);
         ctx.fill();
 
-        // Bang Strands
         ctx.beginPath();
         ctx.moveTo(ax - 15 * dpr * z, ay - 52 * dpr * z + walkBob + sitOffset);
         ctx.lineTo(ax - 8 * dpr * z, ay - 44 * dpr * z + walkBob + sitOffset);
@@ -666,15 +686,13 @@
         ctx.lineTo(ax + 15 * dpr * z, ay - 52 * dpr * z + walkBob + sitOffset);
         ctx.fill();
 
-        // Expressive Anime Eyes with Catchlight Glints
+        // Anime Eyes with Glints
         if (char.direction === 'S') {
-          // Left Eye
           ctx.fillStyle = '#0f172a';
           ctx.fillRect(ax - 7 * dpr * z, ay - 48 * dpr * z + walkBob + sitOffset, 4 * dpr * z, 5 * dpr * z);
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(ax - 6 * dpr * z, ay - 47 * dpr * z + walkBob + sitOffset, 2 * dpr * z, 2 * dpr * z);
 
-          // Right Eye
           ctx.fillStyle = '#0f172a';
           ctx.fillRect(ax + 3 * dpr * z, ay - 48 * dpr * z + walkBob + sitOffset, 4 * dpr * z, 5 * dpr * z);
           ctx.fillStyle = '#ffffff';
@@ -705,7 +723,7 @@
         ctx.fillText(char.emote, ax, ay - 84 * dpr * z + walkBob + sitOffset);
       }
 
-      // Staggered Anti-Overlap Speech Bubble
+      // Speech Bubble
       if (char.bubbleTimer > 0 && char.bubbleText) {
         ctx.font = `bold ${11 * dpr * z}px sans-serif`;
         const textWidth = ctx.measureText(char.bubbleText).width;
@@ -743,11 +761,11 @@
         wallLeft = '#064e3b'; wallRight = '#065f46'; tileA = '#022c22'; tileB = '#044e3d'; trimColor = '#10b981';
       }
 
-      if (lightingMode === 1) {
+      if (lightingMode === 1) { // Sunset
         wallLeft = '#451a03'; wallRight = '#7c2d12';
-      } else if (lightingMode === 2) {
+      } else if (lightingMode === 2) { // Day
         wallLeft = '#1e293b'; wallRight = '#334155';
-      } else if (lightingMode === 3) {
+      } else if (lightingMode === 3) { // Matrix
         wallLeft = '#022c22'; wallRight = '#064e3b'; trimColor = '#10b981';
       }
 
@@ -755,7 +773,7 @@
       const cornerLeft = toIso(0, GRID_SIZE);
       const cornerRight = toIso(GRID_SIZE, 0);
 
-      // Left Wall
+      // Back-Left Wall
       ctx.fillStyle = wallLeft;
       ctx.beginPath();
       ctx.moveTo(ox + cornerTop.x, oy + cornerTop.y);
@@ -765,7 +783,7 @@
       ctx.closePath();
       ctx.fill();
 
-      // Right Wall
+      // Back-Right Wall
       ctx.fillStyle = wallRight;
       ctx.beginPath();
       ctx.moveTo(ox + cornerTop.x, oy + cornerTop.y);
@@ -775,7 +793,7 @@
       ctx.closePath();
       ctx.fill();
 
-      // Detailed Cyber Window & Animated Skyline
+      // Cyber Window & Animated Skyline
       const winGrad = ctx.createLinearGradient(ox - 80 * dpr * z, oy - 160 * dpr * z, ox - 10 * dpr * z, oy - 60 * dpr * z);
       winGrad.addColorStop(0, lightingMode === 1 ? 'rgba(249, 115, 22, 0.8)' : (lightingMode === 3 ? 'rgba(16, 185, 129, 0.8)' : 'rgba(6, 182, 212, 0.7)'));
       winGrad.addColorStop(1, 'rgba(236, 72, 153, 0.5)');
@@ -791,7 +809,7 @@
       ctx.fill();
       ctx.stroke();
 
-      // Traffic streak
+      // Passing Aerial Cruiser in window
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(ox - 75 * dpr * z + (trafficX * dpr * 0.45 * z), oy - 115 * dpr * z + (trafficX * dpr * 0.22 * z), 5 * dpr * z, 2 * dpr * z);
 
@@ -819,7 +837,7 @@
           ctx.closePath();
 
           if (pendingItemType && hoveredGrid && hoveredGrid.gx === x && hoveredGrid.gy === y) {
-            const isOccupied = furniture.some(f => f.gx === x && f.gy === y);
+            const isOccupied = isTileSolid(x, y);
             ctx.fillStyle = isOccupied ? 'rgba(239, 68, 68, 0.65)' : 'rgba(16, 185, 129, 0.65)';
             ctx.fill();
             ctx.strokeStyle = isOccupied ? '#ef4444' : '#10b981';
@@ -844,7 +862,7 @@
         ctx.stroke();
       }
 
-      // Dust Motes
+      // Dust Particles
       ctx.fillStyle = 'rgba(236, 72, 153, 0.4)';
       for (let m of motes) {
         ctx.beginPath();
@@ -852,7 +870,7 @@
         ctx.fill();
       }
 
-      // Destination Marker
+      // Walk Destination Target
       if (player.isMoving) {
         const tIso = toIso(player.targetGx, player.targetGy);
         const tx = ox + tIso.x;
@@ -864,9 +882,9 @@
         ctx.stroke();
       }
 
-      // Y-Sorted Depth Entity Pipeline
+      // Y-Sorted Depth Queue (Wall decor first, then floor entities)
       const renderList = [
-        ...furniture.map(f => ({ type: 'furniture', data: f, depth: f.gx + f.gy })),
+        ...furniture.map(f => ({ type: 'furniture', data: f, depth: f.isWall ? -10 : (f.gx + f.gy) })),
         ...friends.map((fr, idx) => ({ type: 'friend', data: fr, depth: fr.gx + fr.gy, idx })),
         { type: 'player', data: player, depth: player.gx + player.gy, idx: 0 }
       ];
@@ -903,6 +921,23 @@
       tapRipples.push({ x: clickX, y: clickY, r: 4 * dpr, alpha: 0.9 });
       playSFX('tap');
 
+      // Check if clicking near back-wall in placement mode for wall decor
+      if (pendingItemType === 'poster') {
+        const isLeft = clickX < (W / 2 + camera.x);
+        furniture.push({
+          type: 'poster',
+          gx: 0,
+          gy: Math.max(0, Math.min(3, Math.floor(Math.random() * 3))),
+          rot: 0,
+          isWall: true,
+          wallSide: isLeft ? 'left' : 'right'
+        });
+        saveDecorState();
+        cancelPlacement();
+        playSFX('drop');
+        return;
+      }
+
       if (tx >= 0 && tx < GRID_SIZE && ty >= 0 && ty < GRID_SIZE) {
         if (pendingItemType) {
           furniture.push({ type: pendingItemType, gx: tx, gy: ty, rot: pendingRot, active: true });
@@ -912,7 +947,7 @@
           return;
         }
 
-        const hitIndex = furniture.findIndex(f => f.gx === tx && f.gy === ty);
+        const hitIndex = furniture.findIndex(f => f.gx === tx && f.gy === ty && !f.isWall);
         if (hitIndex !== -1) {
           const hit = furniture[hitIndex];
           if (hit.type === 'lamp' || hit.type === 'arcade' || hit.type === 'desk') {
@@ -935,6 +970,7 @@
           return;
         }
 
+        // Move Player to Selected Tile
         player.targetGx = tx;
         player.targetGy = ty;
         player.isMoving = true;
@@ -968,6 +1004,7 @@
       pendingRot = 0;
       closeAllModals();
       document.getElementById('rotDeg').innerText = '0°';
+      document.getElementById('placementNotice').innerText = type === 'poster' ? 'Tap any back wall to hang' : 'Tap floor tile to place';
       document.getElementById('placementBanner').classList.remove('hidden');
     }
 
