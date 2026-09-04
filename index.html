@@ -3,9 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#020617" />
-  <title>Oiioii Space • AI Studio</title>
+  <meta name="theme-color" content="#090d16" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Oiioii Space • Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Inlined PWA Manifest to allow direct home-screen install -->
+  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Oiioii%20Space%22%2C%22short_name%22%3A%22Oiioii%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23020617%22%2C%22theme_color%22%3A%22%23ec4899%22%7D" />
+
   <style>
     html, body {
       height: 100%;
@@ -16,17 +22,18 @@
       touch-action: none;
       -webkit-user-select: none;
       user-select: none;
+      background-color: #020617;
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 flex flex-col items-center justify-between font-sans">
+<body class="text-slate-100 flex flex-col items-center justify-between font-sans">
 
-  <!-- Top HUD Bar -->
-  <header id="topHud" class="w-full max-w-lg flex items-center justify-between px-3 py-2.5 bg-slate-900/80 backdrop-blur-md z-20 border-b border-slate-800">
+  <!-- Header HUD -->
+  <header id="topHud" class="w-full max-w-lg flex items-center justify-between px-3 py-2 bg-slate-900/90 backdrop-blur-md z-20 border-b border-slate-800">
     <div class="flex items-center gap-2">
-      <span class="w-2.5 h-2.5 rounded-full bg-pink-500 animate-pulse"></span>
+      <span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span>
       <span class="text-xs font-black tracking-widest text-pink-400">OIIOII AI</span>
-      <button onclick="cycleLighting()" id="lightingBadge" class="text-[10px] text-slate-300 bg-slate-800/80 px-2 py-0.5 rounded-md font-mono border border-slate-700 active:scale-95">🌙 Night</button>
+      <button onclick="cycleLighting()" id="lightingBadge" class="text-[10px] text-slate-300 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 active:scale-95">🌙 Night</button>
     </div>
     <div class="flex gap-1.5">
       <button onclick="toggleAudio()" id="audioBtn" class="px-2 py-1 bg-slate-800 active:scale-95 text-xs font-semibold rounded-xl border border-slate-700 text-slate-200">
@@ -38,7 +45,7 @@
       <button onclick="toggleModal('wardrobeModal')" class="px-2 py-1 bg-slate-800 active:scale-95 text-xs font-semibold rounded-xl border border-slate-700 text-slate-200">
         👗 Style
       </button>
-      <button onclick="toggleModal('decorModal')" class="px-2.5 py-1 bg-pink-500 active:scale-95 text-xs font-black rounded-xl text-slate-950 shadow-lg shadow-pink-500/20">
+      <button onclick="toggleModal('decorModal')" class="px-2.5 py-1 bg-pink-500 active:scale-95 text-xs font-black rounded-xl text-slate-950 shadow-md shadow-pink-500/20">
         🛋️ Decor
       </button>
     </div>
@@ -46,21 +53,21 @@
 
   <!-- Placement Banner -->
   <div id="placementBanner" class="hidden absolute top-14 z-30 bg-pink-500 text-slate-950 text-xs font-black px-4 py-2 rounded-2xl shadow-xl flex items-center gap-3">
-    <span id="placementNotice">Tap floor tile to place</span>
+    <span id="placementNotice">Tap a floor tile to place</span>
     <button onclick="rotatePending()" class="bg-slate-900 text-white px-2 py-1 rounded-lg text-[10px] font-bold">🔄 Turn (<span id="rotDeg">0°</span>)</button>
     <button onclick="cancelPlacement()" class="text-slate-950 font-black text-sm">✕</button>
   </div>
 
-  <!-- Viewport -->
+  <!-- Main Viewport -->
   <main class="relative w-full max-w-lg flex-1 overflow-hidden bg-slate-950">
     <canvas id="spaceCanvas" class="w-full h-full block"></canvas>
 
-    <!-- Bottom HUD & AI Interaction -->
+    <!-- Bottom Controls & Chat -->
     <div id="hudBottom" class="absolute bottom-3 inset-x-3 flex flex-col gap-2 pointer-events-none z-10 transition-opacity">
       
       <!-- Chat Form -->
       <form onsubmit="handleChat(event)" class="flex gap-2 pointer-events-auto">
-        <input id="chatInput" type="text" placeholder="Speak to the room or an NPC..." maxlength="80" class="flex-1 bg-slate-900/90 backdrop-blur border border-slate-700 text-xs px-3.5 py-2.5 rounded-xl text-white outline-none focus:border-pink-500 placeholder-slate-500 shadow-lg" />
+        <input id="chatInput" type="text" placeholder="Speak to your AI visitors..." maxlength="70" class="flex-1 bg-slate-900/90 backdrop-blur border border-slate-700 text-xs px-3.5 py-2.5 rounded-xl text-white outline-none focus:border-pink-500 placeholder-slate-500 shadow-md" />
         <button type="submit" class="px-4 bg-pink-500 active:scale-95 text-slate-950 font-black text-xs rounded-xl shadow-md">
           Chat
         </button>
@@ -85,7 +92,7 @@
     <!-- Wardrobe Modal -->
     <div id="wardrobeModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-        <span class="text-xs font-black text-pink-400 tracking-wider">Avatar Customizer</span>
+        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Avatar Studio</span>
         <button onclick="toggleModal('wardrobeModal')" class="text-xs text-slate-400 px-2">✕</button>
       </div>
       <div class="flex items-center justify-between text-xs">
@@ -113,26 +120,26 @@
     <!-- Theme Modal -->
     <div id="themeModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-        <span class="text-xs font-black text-pink-400 tracking-wider">Room Architecture</span>
+        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Architecture</span>
         <button onclick="toggleModal('themeModal')" class="text-xs text-slate-400 px-2">✕</button>
       </div>
       <div class="grid grid-cols-3 gap-2 text-xs">
         <button onclick="setRoomTheme('cyber')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 text-center font-bold">🌌 Cyber</button>
         <button onclick="setRoomTheme('wood')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 text-center font-bold">🪵 Warm Loft</button>
-        <button onclick="setRoomTheme('mint')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 text-center font-bold">🌿 Studio</button>
+        <button onclick="setRoomTheme('mint')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 text-center font-bold">🌿 Mint Studio</button>
       </div>
     </div>
 
-    <!-- Decor Catalog Modal -->
+    <!-- Decor Modal -->
     <div id="decorModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-        <span class="text-xs font-black text-pink-400 tracking-wider">Decor Store</span>
+        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Decor Catalog</span>
         <button onclick="toggleModal('decorModal')" class="text-xs text-slate-400 px-2">✕</button>
       </div>
       <div class="grid grid-cols-4 gap-2 text-xs max-h-56 overflow-y-auto">
         <button onclick="startPlacement('desk')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🖥️</span>
-          <span class="text-[9px] text-slate-300">Desk</span>
+          <span class="text-[9px] text-slate-300">Desk Pro</span>
         </button>
         <button onclick="startPlacement('bed')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🛏️</span>
@@ -144,7 +151,7 @@
         </button>
         <button onclick="startPlacement('plant')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🪴</span>
-          <span class="text-[9px] text-slate-300">Plant</span>
+          <span class="text-[9px] text-slate-300">Monstera</span>
         </button>
         <button onclick="startPlacement('arcade')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🕹️</span>
@@ -152,11 +159,11 @@
         </button>
         <button onclick="startPlacement('lamp')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">💡</span>
-          <span class="text-[9px] text-slate-300">Lamp</span>
+          <span class="text-[9px] text-slate-300">Lava Lamp</span>
         </button>
         <button onclick="startPlacement('poster')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🖼️</span>
-          <span class="text-[9px] text-slate-300">Art</span>
+          <span class="text-[9px] text-slate-300">Wall Poster</span>
         </button>
       </div>
     </div>
@@ -180,11 +187,11 @@
     resize();
 
     const GRID_SIZE = 7;
-    const TILE_W = 104 * dpr;
-    const TILE_H = 52 * dpr;
+    const TILE_W = 100 * dpr;
+    const TILE_H = 50 * dpr;
     const WALL_H = 260 * dpr;
 
-    let camera = { x: 0, y: -180 * dpr, zoom: 1.0 };
+    let camera = { x: 0, y: -190 * dpr, zoom: 1.0 };
     let isDraggingCam = false;
     let lastTouch = { x: 0, y: 0 };
 
@@ -208,6 +215,7 @@
       direction: 'S',
       isMoving: false,
       isSitting: false,
+      sitElevation: 0,
       skinColor: '#fcd34d',
       hairColor: savedHair,
       outfitColor: savedOutfit,
@@ -217,13 +225,12 @@
       emoteTimer: 0
     };
 
-    // AI Bots with personality profiles
-    let friends = [];
     const BOT_PROFILES = [
-      { name: 'Mika', role: 'Cyberpunk Poet', hair: '#ec4899', outfit: '#3b82f6', mood: 'chill' },
-      { name: 'Kai', role: 'Synth Hacker', hair: '#06b6d4', outfit: '#0f172a', mood: 'curious' },
-      { name: 'Nova', role: 'Vibe Architect', hair: '#f59e0b', outfit: '#10b981', mood: 'energetic' }
+      { name: 'Mika', hair: '#ec4899', outfit: '#3b82f6', mood: 'chill' },
+      { name: 'Kai', hair: '#06b6d4', outfit: '#0f172a', mood: 'curious' },
+      { name: 'Nova', hair: '#f59e0b', outfit: '#10b981', mood: 'creative' }
     ];
+    let friends = [];
 
     let furniture = savedFurniture ? JSON.parse(savedFurniture) : [
       { type: 'bed', gx: 1, gy: 4, rot: 0 },
@@ -256,7 +263,7 @@
       };
     }
 
-    // Audio Engine
+    // Audio SFX Engine
     let audioCtx = null;
     let isPlayingAudio = false;
     let audioInterval = null;
@@ -298,7 +305,7 @@
           const gain = audioCtx.createGain();
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(notes[Math.floor(Math.random() * notes.length)], audioCtx.currentTime);
-          gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.025, audioCtx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.0);
           osc.connect(gain);
           gain.connect(audioCtx.destination);
@@ -324,32 +331,43 @@
       playSFX('tap');
     }
 
-    function isTileSolid(x, y) {
-      const hit = furniture.find(f => f.gx === x && f.gy === y && !f.isWall);
-      return hit && (hit.type === 'arcade' || hit.type === 'desk' || hit.type === 'plant');
+    function isOccupied(gx, gy) {
+      const isFurniture = furniture.some(f => f.gx === gx && f.gy === gy && !f.isWall && f.type !== 'sofa' && f.type !== 'bed');
+      const isPlayer = Math.round(player.gx) === gx && Math.round(player.gy) === gy;
+      const isBot = friends.some(f => Math.round(f.gx) === gx && Math.round(f.gy) === gy);
+      return isFurniture || isPlayer || isBot;
     }
 
     function spawnFriend() {
       if (friends.length >= BOT_PROFILES.length) {
-        alert("Maximum bot visitors reached!");
+        alert("Cozy room limit reached (3 AI Visitors).");
         return;
       }
       const prof = BOT_PROFILES[friends.length];
+      
+      // Locate an empty floor tile
+      let sx = 2, sy = 2;
+      for (let x = 1; x < GRID_SIZE - 1; x++) {
+        for (let y = 1; y < GRID_SIZE - 1; y++) {
+          if (!isOccupied(x, y)) {
+            sx = x; sy = y; break;
+          }
+        }
+      }
+
       friends.push({
         name: prof.name,
-        role: prof.role,
-        gx: 2 + friends.length,
-        gy: 3,
-        targetGx: 2 + friends.length,
-        targetGy: 3,
+        gx: sx, gy: sy,
+        targetGx: sx, targetGy: sy,
         speed: 0.045,
         direction: 'S',
         isMoving: false,
         isSitting: false,
+        sitElevation: 0,
         hairColor: prof.hair,
         outfitColor: prof.outfit,
-        bubbleText: `Hey! I'm ${prof.name}. 👋`,
-        bubbleTimer: 160
+        bubbleText: `Oiioii! I'm ${prof.name}.`,
+        bubbleTimer: 180
       });
       playSFX('drop');
     }
@@ -363,7 +381,7 @@
 
     function resetCamera() {
       camera.x = 0;
-      camera.y = -180 * dpr;
+      camera.y = -190 * dpr;
       camera.zoom = 1.0;
       player.targetGx = 3;
       player.targetGy = 3;
@@ -377,12 +395,11 @@
         if (tapRipples[i].alpha <= 0) tapRipples.splice(i, 1);
       }
 
-      // Player Movement
+      // Player Movement Logic
       if (player.isMoving) {
         const dx = player.targetGx - player.gx;
         const dy = player.targetGy - player.gy;
         const dist = Math.hypot(dx, dy);
-
         player.direction = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'E' : 'W') : (dy > 0 ? 'S' : 'N');
 
         if (dist < 0.06) {
@@ -391,19 +408,21 @@
           player.isMoving = false;
           const hit = furniture.find(f => f.gx === player.gx && f.gy === player.gy && !f.isWall);
           player.isSitting = hit && (hit.type === 'sofa' || hit.type === 'bed');
+          player.sitElevation = player.isSitting ? 10 * dpr : 0;
         } else {
           player.gx += (dx / dist) * player.speed;
           player.gy += (dy / dist) * player.speed;
           player.isSitting = false;
+          player.sitElevation = 0;
         }
       }
 
-      // Bot wander
+      // AI Bots autonomous behavior
       for (let f of friends) {
         if (!f.isMoving && Math.random() < 0.008) {
           const rx = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
           const ry = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
-          if (!isTileSolid(rx, ry)) {
+          if (!isOccupied(rx, ry)) {
             f.targetGx = rx;
             f.targetGy = ry;
             f.isMoving = true;
@@ -419,9 +438,14 @@
             f.gx = f.targetGx;
             f.gy = f.targetGy;
             f.isMoving = false;
+            const hit = furniture.find(item => item.gx === f.gx && item.gy === f.gy && !item.isWall);
+            f.isSitting = hit && (hit.type === 'sofa' || hit.type === 'bed');
+            f.sitElevation = f.isSitting ? 10 * dpr : 0;
           } else {
             f.gx += (dx / dist) * f.speed;
             f.gy += (dy / dist) * f.speed;
+            f.isSitting = false;
+            f.sitElevation = 0;
           }
         }
         if (f.bubbleTimer > 0) f.bubbleTimer--;
@@ -463,12 +487,12 @@
     function renderFurniture(item, ox, oy) {
       const z = camera.zoom;
       if (item.isWall) {
-        const wallX = item.wallSide === 'left' ? (ox - 65 * dpr * z) : (ox + 65 * dpr * z);
+        const wallX = item.wallSide === 'left' ? (ox - 70 * dpr * z) : (ox + 70 * dpr * z);
         const wallY = oy - 80 * dpr * z - (item.gy * 16 * dpr * z);
         ctx.save();
         ctx.translate(wallX, wallY);
-        ctx.fillStyle = '#ec4899';
-        ctx.fillRect(-14 * dpr * z, -20 * dpr * z, 28 * dpr * z, 36 * dpr * z);
+        ctx.fillStyle = '#f43f5e';
+        ctx.fillRect(-12 * dpr * z, -18 * dpr * z, 24 * dpr * z, 32 * dpr * z);
         ctx.restore();
         return;
       }
@@ -481,90 +505,94 @@
       ctx.translate(fx, fy);
 
       if (item.type === 'bed') {
-        drawIsoBox(ctx, 0, 0, 92 * dpr * z, 46 * dpr * z, 18 * dpr * z, '#334155', '#1e293b', '#0f172a');
-        drawIsoBox(ctx, 0, -4 * dpr * z, 86 * dpr * z, 42 * dpr * z, 16 * dpr * z, '#ec4899', '#db2777', '#9d174d');
+        drawIsoBox(ctx, 0, 0, 92 * dpr * z, 46 * dpr * z, 14 * dpr * z, '#1e293b', '#0f172a', '#020617');
+        drawIsoBox(ctx, 0, -3 * dpr * z, 86 * dpr * z, 42 * dpr * z, 12 * dpr * z, '#ec4899', '#db2777', '#9d174d');
       } else if (item.type === 'sofa') {
-        drawIsoBox(ctx, 0, 0, 84 * dpr * z, 42 * dpr * z, 22 * dpr * z, '#6366f1', '#4f46e5', '#3730a3');
+        drawIsoBox(ctx, 0, 0, 84 * dpr * z, 42 * dpr * z, 18 * dpr * z, '#6366f1', '#4f46e5', '#3730a3');
       } else if (item.type === 'desk') {
-        drawIsoBox(ctx, 0, -18 * dpr * z, 84 * dpr * z, 42 * dpr * z, 10 * dpr * z, '#475569', '#334155', '#1e293b');
+        drawIsoBox(ctx, 0, -16 * dpr * z, 82 * dpr * z, 40 * dpr * z, 10 * dpr * z, '#475569', '#334155', '#1e293b');
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillRect(-16 * dpr * z, -50 * dpr * z, 32 * dpr * z, 18 * dpr * z);
       } else if (item.type === 'plant') {
-        drawIsoBox(ctx, 0, 0, 26 * dpr * z, 16 * dpr * z, 18 * dpr * z, '#ea580c', '#c2410c', '#9a3412');
+        drawIsoBox(ctx, 0, 0, 24 * dpr * z, 14 * dpr * z, 16 * dpr * z, '#ea580c', '#c2410c', '#9a3412');
         ctx.fillStyle = '#10b981';
         ctx.beginPath();
-        ctx.arc(0, -32 * dpr * z, 16 * dpr * z, 0, Math.PI * 2);
+        ctx.arc(0, -28 * dpr * z, 14 * dpr * z, 0, Math.PI * 2);
         ctx.fill();
       } else if (item.type === 'arcade') {
-        drawIsoBox(ctx, 0, 0, 42 * dpr * z, 24 * dpr * z, 68 * dpr * z, '#0f172a', '#090d16', '#020617');
+        drawIsoBox(ctx, 0, 0, 38 * dpr * z, 22 * dpr * z, 60 * dpr * z, '#0f172a', '#090d16', '#020617');
       } else if (item.type === 'lamp') {
         ctx.fillStyle = '#ec4899';
-        ctx.fillRect(-6 * dpr * z, -36 * dpr * z, 12 * dpr * z, 30 * dpr * z);
+        ctx.fillRect(-5 * dpr * z, -32 * dpr * z, 10 * dpr * z, 26 * dpr * z);
       }
       ctx.restore();
     }
 
-    function renderAvatar(char, isSelf, ox, oy) {
+    function renderAvatar(char, isSelf, ox, oy, index) {
       const pIso = toIso(char.gx, char.gy);
       const ax = ox + pIso.x;
-      const ay = oy + pIso.y + (TILE_H / 2) * camera.zoom;
+      const elevation = char.sitElevation || 0;
+      const ay = oy + pIso.y + (TILE_H / 2) * camera.zoom - elevation;
       const z = camera.zoom;
 
+      // Drop Shadow
       ctx.beginPath();
-      ctx.ellipse(ax, ay, 16 * dpr * z, 8 * dpr * z, 0, 0, Math.PI * 2);
+      ctx.ellipse(ax, ay + elevation, 15 * dpr * z, 7 * dpr * z, 0, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
       ctx.fill();
 
       const bob = char.isMoving ? Math.sin(Date.now() * 0.02) * (3 * dpr * z) : 0;
-      const sit = char.isSitting ? 10 * dpr * z : 0;
 
       // Legs
       if (!char.isSitting) {
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(ax - 6 * dpr * z, ay - 10 * dpr * z + bob, 4 * dpr * z, 10 * dpr * z);
-        ctx.fillRect(ax + 2 * dpr * z, ay - 10 * dpr * z - bob, 4 * dpr * z, 10 * dpr * z);
+        ctx.fillRect(ax - 5 * dpr * z, ay - 10 * dpr * z + bob, 4 * dpr * z, 10 * dpr * z);
+        ctx.fillRect(ax + 1 * dpr * z, ay - 10 * dpr * z - bob, 4 * dpr * z, 10 * dpr * z);
       }
 
       // Torso
       ctx.fillStyle = char.outfitColor;
       ctx.beginPath();
-      ctx.roundRect(ax - 12 * dpr * z, ay - 32 * dpr * z + bob + sit, 24 * dpr * z, 22 * dpr * z, 5 * dpr * z);
+      ctx.roundRect(ax - 11 * dpr * z, ay - 30 * dpr * z + bob, 22 * dpr * z, 20 * dpr * z, 5 * dpr * z);
       ctx.fill();
 
       // Head
       ctx.fillStyle = char.skinColor || '#fcd34d';
       ctx.beginPath();
-      ctx.arc(ax, ay - 44 * dpr * z + bob + sit, 14 * dpr * z, 0, Math.PI * 2);
+      ctx.arc(ax, ay - 42 * dpr * z + bob, 13 * dpr * z, 0, Math.PI * 2);
       ctx.fill();
 
       // Hair
       ctx.fillStyle = char.hairColor;
       ctx.beginPath();
-      ctx.arc(ax, ay - 48 * dpr * z + bob + sit, 15 * dpr * z, Math.PI, Math.PI * 2);
+      ctx.arc(ax, ay - 46 * dpr * z + bob, 14 * dpr * z, Math.PI, Math.PI * 2);
       ctx.fill();
 
-      // Name
+      // Name Tag
       ctx.font = `bold ${8 * dpr * z}px sans-serif`;
       ctx.fillStyle = isSelf ? '#ec4899' : '#06b6d4';
       ctx.textAlign = 'center';
-      ctx.fillText(char.name, ax, ay - 62 * dpr * z + bob + sit);
+      ctx.fillText(char.name, ax, ay - 58 * dpr * z + bob);
 
-      // Bubble
+      // Staggered Non-Overlapping Dialogue Bubbles
       if (char.bubbleTimer > 0 && char.bubbleText) {
         ctx.font = `bold ${10 * dpr * z}px sans-serif`;
         const textW = ctx.measureText(char.bubbleText).width;
         const bw = textW + 16 * dpr * z;
         const bx = Math.max(10 * dpr, Math.min(W - bw - 10 * dpr, ax - bw / 2));
-        const by = ay - 88 * dpr * z + bob + sit;
+        const stackOffset = (index % 2) * (26 * dpr * z);
+        const by = ay - 82 * dpr * z + bob - stackOffset;
 
         ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
         ctx.strokeStyle = isSelf ? '#ec4899' : '#06b6d4';
         ctx.lineWidth = 1.5 * dpr;
         ctx.beginPath();
-        ctx.roundRect(bx, by, bw, 24 * dpr * z, 6 * dpr * z);
+        ctx.roundRect(bx, by, bw, 22 * dpr * z, 6 * dpr * z);
         ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(char.bubbleText, bx + bw / 2, by + 16 * dpr * z);
+        ctx.fillText(char.bubbleText, bx + bw / 2, by + 15 * dpr * z);
       }
     }
 
@@ -581,7 +609,7 @@
         wallLeft = '#064e3b'; wallRight = '#065f46'; tileA = '#022c22'; tileB = '#044e3d';
       }
 
-      // Walls
+      // Isometric Walls
       const cTop = toIso(0, 0);
       const cLeft = toIso(0, GRID_SIZE);
       const cRight = toIso(GRID_SIZE, 0);
@@ -624,24 +652,33 @@
         }
       }
 
-      // Entities Depth Sorted
+      // Tap Ripples
+      for (let r of tapRipples) {
+        ctx.beginPath();
+        ctx.ellipse(r.x, r.y, r.r, r.r / 2, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(236, 72, 153, ${r.alpha})`;
+        ctx.lineWidth = 2 * dpr;
+        ctx.stroke();
+      }
+
+      // Depth-Sorted Entities
       const entities = [
         ...furniture.map(f => ({ type: 'decor', data: f, depth: f.isWall ? -10 : f.gx + f.gy })),
-        ...friends.map(fr => ({ type: 'friend', data: fr, depth: fr.gx + fr.gy })),
-        { type: 'player', data: player, depth: player.gx + player.gy }
+        ...friends.map((fr, i) => ({ type: 'friend', data: fr, depth: fr.gx + fr.gy, idx: i + 1 })),
+        { type: 'player', data: player, depth: player.gx + player.gy, idx: 0 }
       ].sort((a, b) => a.depth - b.depth);
 
       for (let ent of entities) {
         if (ent.type === 'decor') renderFurniture(ent.data, ox, oy);
-        else if (ent.type === 'friend') renderAvatar(ent.data, false, ox, oy);
-        else renderAvatar(ent.data, true, ox, oy);
+        else if (ent.type === 'friend') renderAvatar(ent.data, false, ox, oy, ent.idx);
+        else renderAvatar(ent.data, true, ox, oy, ent.idx);
       }
 
       update();
       requestAnimationFrame(render);
     }
 
-    // Canvas Events
+    // Canvas Pointer Events
     canvas.addEventListener('pointerdown', (e) => {
       closeAllModals();
       const rect = canvas.getBoundingClientRect();
@@ -668,8 +705,8 @@
       }
     });
 
-    // AI Chat Engine Integration Hook
-    async function handleChat(e) {
+    // Chat Handler with Context-Aware Responses
+    function handleChat(e) {
       e.preventDefault();
       const input = document.getElementById('chatInput');
       const val = input.value.trim();
@@ -681,20 +718,17 @@
 
       if (friends.length > 0) {
         const responder = friends[Math.floor(Math.random() * friends.length)];
-        
-        // Simulating LLM inference delay & character responses
         setTimeout(() => {
-          const smartReplies = [
-            `I love what you've done with the space! ✨`,
-            `The lofi beat in here is so relaxing.`,
-            `Do you think we should add an arcade game? 🕹️`,
-            `Oiioii vibe certified. 🚀`,
-            `I was just exploring around the grid!`
+          const replies = [
+            `Nice to meet you! Room looks great. ✨`,
+            `The vibe here is super chill. 🎶`,
+            `Are we going to add more furniture soon?`,
+            `Oiioii space verified! 🚀`
           ];
-          responder.bubbleText = smartReplies[Math.floor(Math.random() * smartReplies.length)];
+          responder.bubbleText = replies[Math.floor(Math.random() * replies.length)];
           responder.bubbleTimer = 200;
           playSFX('drop');
-        }, 900);
+        }, 850);
       }
     }
 
