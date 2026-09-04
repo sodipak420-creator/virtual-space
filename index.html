@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Oiioii Space</title>
+  <title>Oiioii Space • Virtual World</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html, body {
@@ -13,45 +13,59 @@
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 flex flex-col items-center select-none">
+<body class="bg-slate-950 text-slate-100 flex flex-col items-center justify-between select-none">
 
-  <!-- Top Bar -->
-  <header class="w-full max-w-md flex items-center justify-between px-4 py-2.5 bg-slate-900/90 backdrop-blur z-20 border-b border-slate-800">
+  <!-- Top Header HUD -->
+  <header class="w-full max-w-md flex items-center justify-between px-4 py-2 bg-slate-900/90 backdrop-blur z-20 border-b border-slate-800">
     <div class="flex items-center gap-2">
       <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span class="text-sm font-black text-pink-400">Oiioii Space</span>
+      <span class="text-xs font-black text-pink-400 tracking-wider">OIIOII SPACE</span>
+      <span class="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">Room #101</span>
     </div>
-    <div class="flex gap-2">
-      <button onclick="openModal('wardrobeModal')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 active:scale-95 text-xs font-bold rounded-xl border border-slate-700">
+    <div class="flex gap-1.5">
+      <button onclick="toggleModal('wardrobeModal')" class="px-2.5 py-1.5 bg-slate-800 active:scale-95 text-xs font-bold rounded-xl border border-slate-700">
         👗 Style
       </button>
-      <button onclick="openModal('decorModal')" class="px-3 py-1.5 bg-pink-500 hover:bg-pink-600 active:scale-95 text-xs font-black rounded-xl text-slate-950 shadow-md shadow-pink-500/20">
+      <button onclick="toggleModal('decorModal')" class="px-2.5 py-1.5 bg-pink-500 active:scale-95 text-xs font-black rounded-xl text-slate-950 shadow-md shadow-pink-500/20">
         🛋️ Decor
       </button>
     </div>
   </header>
 
-  <!-- Viewport -->
+  <!-- Interactive Space Viewport -->
   <main class="relative w-full max-w-md flex-1 overflow-hidden bg-slate-950">
     <canvas id="spaceCanvas" class="w-full h-full block"></canvas>
 
-    <!-- Bottom Action Bar -->
-    <div class="absolute bottom-4 inset-x-4 flex justify-between items-center pointer-events-none z-10">
-      <button onclick="resetCamera()" class="pointer-events-auto px-3 py-2 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-slate-300 active:scale-95">
-        Center 🎯
-      </button>
-      <div class="flex gap-2 pointer-events-auto">
-        <button onclick="sendEmote('💖')" class="px-3 py-2 bg-slate-900/90 backdrop-blur text-base rounded-xl border border-slate-800 active:scale-95">💖</button>
-        <button onclick="sendEmote('👋')" class="px-3 py-2 bg-slate-900/90 backdrop-blur text-base rounded-xl border border-slate-800 active:scale-95">👋</button>
-        <button onclick="sendEmote('✨')" class="px-3 py-2 bg-slate-900/90 backdrop-blur text-base rounded-xl border border-slate-800 active:scale-95">✨</button>
+    <!-- Bottom Quick Action & Chat Bar -->
+    <div class="absolute bottom-3 inset-x-3 flex flex-col gap-2 pointer-events-none z-10">
+      
+      <!-- Chat Input Form -->
+      <form onsubmit="handleChat(event)" class="flex gap-1.5 pointer-events-auto">
+        <input id="chatInput" type="text" placeholder="Type a message..." maxlength="35" class="flex-1 bg-slate-900/90 backdrop-blur border border-slate-700 text-xs px-3 py-2 rounded-xl text-white outline-none focus:border-pink-500" />
+        <button type="submit" class="px-3 bg-pink-500 active:scale-95 text-slate-950 font-black text-xs rounded-xl shadow-md">
+          Send
+        </button>
+      </form>
+
+      <!-- Action Row -->
+      <div class="flex justify-between items-center">
+        <button onclick="centerPlayer()" class="pointer-events-auto px-3 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-slate-300 active:scale-95">
+          Center 🎯
+        </button>
+        <div class="flex gap-1.5 pointer-events-auto">
+          <button onclick="triggerEmote('💖')" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-sm rounded-xl border border-slate-800 active:scale-95">💖</button>
+          <button onclick="triggerEmote('👋')" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-sm rounded-xl border border-slate-800 active:scale-95">👋</button>
+          <button onclick="triggerEmote('✨')" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-sm rounded-xl border border-slate-800 active:scale-95">✨</button>
+          <button onclick="triggerEmote('🔥')" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-sm rounded-xl border border-slate-800 active:scale-95">🔥</button>
+        </div>
       </div>
     </div>
 
     <!-- Wardrobe Modal -->
-    <div id="wardrobeModal" class="hidden absolute inset-x-4 bottom-16 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
+    <div id="wardrobeModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-        <span class="text-xs font-black text-pink-400 tracking-wider uppercase">Avatar Wardrobe</span>
-        <button onclick="closeModals()" class="text-sm text-slate-400 px-2 py-0.5">✕</button>
+        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Avatar Studio</span>
+        <button onclick="toggleModal('wardrobeModal')" class="text-xs text-slate-400 px-2 py-0.5">✕</button>
       </div>
       <div class="flex items-center justify-between text-xs">
         <span class="font-bold text-slate-300">Hair:</span>
@@ -59,6 +73,7 @@
           <button onclick="setHair('#06b6d4')" class="w-6 h-6 rounded-full bg-cyan-400 border-2 border-white/50 active:scale-90"></button>
           <button onclick="setHair('#f59e0b')" class="w-6 h-6 rounded-full bg-amber-500 border-2 border-white/50 active:scale-90"></button>
           <button onclick="setHair('#ec4899')" class="w-6 h-6 rounded-full bg-pink-500 border-2 border-white/50 active:scale-90"></button>
+          <button onclick="setHair('#10b981')" class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white/50 active:scale-90"></button>
           <button onclick="setHair('#1e293b')" class="w-6 h-6 rounded-full bg-slate-800 border-2 border-white/50 active:scale-90"></button>
         </div>
       </div>
@@ -69,32 +84,33 @@
           <button onclick="setOutfit('#f43f5e')" class="w-6 h-6 rounded-full bg-rose-500 border-2 border-white/50 active:scale-90"></button>
           <button onclick="setOutfit('#8b5cf6')" class="w-6 h-6 rounded-full bg-purple-500 border-2 border-white/50 active:scale-90"></button>
           <button onclick="setOutfit('#10b981')" class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white/50 active:scale-90"></button>
+          <button onclick="setOutfit('#0f172a')" class="w-6 h-6 rounded-full bg-slate-900 border-2 border-white/50 active:scale-90"></button>
         </div>
       </div>
     </div>
 
     <!-- Decor Modal -->
-    <div id="decorModal" class="hidden absolute inset-x-4 bottom-16 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
+    <div id="decorModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-        <span class="text-xs font-black text-pink-400 tracking-wider uppercase">Place Furniture</span>
-        <button onclick="closeModals()" class="text-sm text-slate-400 px-2 py-0.5">✕</button>
+        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Place Furniture</span>
+        <button onclick="toggleModal('decorModal')" class="text-xs text-slate-400 px-2 py-0.5">✕</button>
       </div>
       <div class="grid grid-cols-4 gap-2 text-xs">
-        <button onclick="addDecor('desk')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">💻</span>
+        <button onclick="addFurniture('desk')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
+          <span class="text-xl">💻</span>
           <span class="text-[10px] text-slate-300">Desk</span>
         </button>
-        <button onclick="addDecor('plant')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">🪴</span>
-          <span class="text-[10px] text-slate-300">Plant</span>
+        <button onclick="addFurniture('bed')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
+          <span class="text-xl">🛏️</span>
+          <span class="text-[10px] text-slate-300">Bed</span>
         </button>
-        <button onclick="addDecor('sofa')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">🛋️</span>
+        <button onclick="addFurniture('sofa')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
+          <span class="text-xl">🛋️</span>
           <span class="text-[10px] text-slate-300">Sofa</span>
         </button>
-        <button onclick="addDecor('bed')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">🛏️</span>
-          <span class="text-[10px] text-slate-300">Bed</span>
+        <button onclick="addFurniture('plant')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
+          <span class="text-xl">🪴</span>
+          <span class="text-[10px] text-slate-300">Plant</span>
         </button>
       </div>
     </div>
@@ -117,10 +133,11 @@
 
     const GRID_SIZE = 8;
     const dpr = window.devicePixelRatio || 1;
-    const TILE_W = 92 * dpr;
-    const TILE_H = 46 * dpr;
-    const WALL_H = 170 * dpr;
+    const TILE_W = 90 * dpr;
+    const TILE_H = 45 * dpr;
+    const WALL_H = 190 * dpr;
 
+    // Player State
     const player = {
       gx: 4, gy: 4,
       targetGx: 4, targetGy: 4,
@@ -129,14 +146,18 @@
       skinColor: '#fcd34d',
       hairColor: '#06b6d4',
       outfitColor: '#ffffff',
+      bubbleText: null,
+      bubbleTimer: 0,
       emote: null,
       emoteTimer: 0
     };
 
+    // Pre-configured room decor
     const furniture = [
       { type: 'desk', gx: 2, gy: 2 },
+      { type: 'bed', gx: 1, gy: 5 },
       { type: 'plant', gx: 6, gy: 1 },
-      { type: 'bed', gx: 1, gy: 5 }
+      { type: 'sofa', gx: 5, gy: 5 }
     ];
 
     function toIso(gx, gy) {
@@ -148,7 +169,7 @@
 
     function fromIso(screenX, screenY) {
       const ox = W / 2;
-      const oy = (H / 2) - 20 * dpr;
+      const oy = (H / 2) - 10 * dpr;
       const relX = screenX - ox;
       const relY = screenY - oy;
       const gx = (relX / (TILE_W / 2) + relY / (TILE_H / 2)) / 2;
@@ -172,10 +193,8 @@
         }
       }
 
-      if (player.emoteTimer > 0) {
-        player.emoteTimer--;
-        if (player.emoteTimer <= 0) player.emote = null;
-      }
+      if (player.bubbleTimer > 0) player.bubbleTimer--;
+      if (player.emoteTimer > 0) player.emoteTimer--;
     }
 
     function renderFurnitureItem(item, ox, oy) {
@@ -183,22 +202,22 @@
       const fx = ox + fIso.x;
       const fy = oy + fIso.y + TILE_H / 2;
 
-      ctx.font = `${28 * dpr}px sans-serif`;
+      ctx.font = `${30 * dpr}px sans-serif`;
       ctx.textAlign = 'center';
 
       if (item.type === 'desk') ctx.fillText('💻', fx, fy - 6 * dpr);
-      else if (item.type === 'plant') ctx.fillText('🪴', fx, fy - 6 * dpr);
-      else if (item.type === 'sofa') ctx.fillText('🛋️', fx, fy - 6 * dpr);
       else if (item.type === 'bed') ctx.fillText('🛏️', fx, fy - 6 * dpr);
+      else if (item.type === 'sofa') ctx.fillText('🛋️', fx, fy - 6 * dpr);
+      else if (item.type === 'plant') ctx.fillText('🪴', fx, fy - 6 * dpr);
     }
 
     function render() {
       ctx.clearRect(0, 0, W, H);
 
       const ox = W / 2;
-      const oy = (H / 2) - 20 * dpr;
+      const oy = (H / 2) - 10 * dpr;
 
-      // 1. Isometric Walls
+      // 1. Isometric Room Back Walls
       const cornerTop = toIso(0, 0);
       const cornerLeft = toIso(0, GRID_SIZE);
       const cornerRight = toIso(GRID_SIZE, 0);
@@ -214,7 +233,7 @@
       ctx.fill();
 
       // Right Wall
-      ctx.fillStyle = '#312e81';
+      ctx.fillStyle = '#2e1065';
       ctx.beginPath();
       ctx.moveTo(ox + cornerTop.x, oy + cornerTop.y);
       ctx.lineTo(ox + cornerRight.x, oy + cornerRight.y);
@@ -223,7 +242,20 @@
       ctx.closePath();
       ctx.fill();
 
-      // Wall Neon Trim
+      // Neon Back Wall Window
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.25)';
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 2 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(ox - 60 * dpr, oy - 120 * dpr);
+      ctx.lineTo(ox - 10 * dpr, oy - 95 * dpr);
+      ctx.lineTo(ox - 10 * dpr, oy - 45 * dpr);
+      ctx.lineTo(ox - 60 * dpr, oy - 70 * dpr);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Neon Seam Trim
       ctx.strokeStyle = '#ec4899';
       ctx.lineWidth = 2.5 * dpr;
       ctx.beginPath();
@@ -266,7 +298,7 @@
         ctx.stroke();
       }
 
-      // 4. Depth Sorted Entities (Avatar & Furniture)
+      // 4. Depth Sorting (Avatar & Furniture)
       const renderList = [
         ...furniture.map(f => ({ type: 'furniture', data: f, depth: f.gx + f.gy })),
         { type: 'player', depth: player.gx + player.gy }
@@ -286,12 +318,12 @@
           // Shadow
           ctx.beginPath();
           ctx.ellipse(ax, ay, 16 * dpr, 8 * dpr, 0, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
           ctx.fill();
 
           const walkBob = player.isMoving ? Math.sin(Date.now() * 0.02) * (4 * dpr) : 0;
 
-          // Legs
+          // Walking Legs
           ctx.fillStyle = '#0f172a';
           ctx.fillRect(ax - 6 * dpr, ay - 10 * dpr + walkBob, 4 * dpr, 9 * dpr);
           ctx.fillRect(ax + 2 * dpr, ay - 10 * dpr - walkBob, 4 * dpr, 9 * dpr);
@@ -308,7 +340,7 @@
           ctx.arc(ax, ay - 38 * dpr + walkBob, 12 * dpr, 0, Math.PI * 2);
           ctx.fill();
 
-          // Hair Cap
+          // Hair
           ctx.fillStyle = player.hairColor;
           ctx.beginPath();
           ctx.arc(ax, ay - 41 * dpr + walkBob, 13 * dpr, Math.PI, Math.PI * 2);
@@ -319,11 +351,33 @@
           ctx.fillRect(ax - 4 * dpr, ay - 37 * dpr + walkBob, 2.5 * dpr, 3.5 * dpr);
           ctx.fillRect(ax + 2 * dpr, ay - 37 * dpr + walkBob, 2.5 * dpr, 3.5 * dpr);
 
-          // Emote
-          if (player.emote) {
-            ctx.font = `${20 * dpr}px sans-serif`;
+          // Emote Floating
+          if (player.emoteTimer > 0) {
+            ctx.font = `${22 * dpr}px sans-serif`;
             ctx.textAlign = 'center';
-            ctx.fillText(player.emote, ax, ay - 56 * dpr + walkBob);
+            ctx.fillText(player.emote, ax, ay - 58 * dpr + walkBob);
+          }
+
+          // Overhead Chat Speech Bubble
+          if (player.bubbleTimer > 0) {
+            ctx.font = `bold ${10 * dpr}px sans-serif`;
+            const textWidth = ctx.measureText(player.bubbleText).width;
+            const bubbleW = textWidth + 16 * dpr;
+            const bubbleH = 20 * dpr;
+            const bx = ax - bubbleW / 2;
+            const by = ay - 68 * dpr + walkBob;
+
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+            ctx.strokeStyle = '#ec4899';
+            ctx.lineWidth = 1.5 * dpr;
+            ctx.beginPath();
+            ctx.roundRect(bx, by, bubbleW, bubbleH, 6 * dpr);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.fillText(player.bubbleText, ax, by + 14 * dpr);
           }
         }
       }
@@ -332,8 +386,9 @@
       requestAnimationFrame(render);
     }
 
+    // Tap to Walk
     canvas.addEventListener('pointerdown', (e) => {
-      closeModals();
+      closeAllModals();
       const rect = canvas.getBoundingClientRect();
       const clickX = (e.clientX - rect.left) * (canvas.width / rect.width);
       const clickY = (e.clientY - rect.top) * (canvas.height / rect.height);
@@ -349,12 +404,14 @@
       }
     });
 
-    function openModal(id) {
-      closeModals();
-      document.getElementById(id).classList.remove('hidden');
+    function toggleModal(id) {
+      const el = document.getElementById(id);
+      const isHidden = el.classList.contains('hidden');
+      closeAllModals();
+      if (isHidden) el.classList.remove('hidden');
     }
 
-    function closeModals() {
+    function closeAllModals() {
       document.getElementById('wardrobeModal').classList.add('hidden');
       document.getElementById('decorModal').classList.add('hidden');
     }
@@ -362,17 +419,28 @@
     function setHair(c) { player.hairColor = c; }
     function setOutfit(c) { player.outfitColor = c; }
 
-    function addDecor(type) {
+    function addFurniture(type) {
       furniture.push({ type, gx: Math.round(player.gx), gy: Math.round(player.gy) });
-      closeModals();
+      closeAllModals();
     }
 
-    function sendEmote(em) {
+    function triggerEmote(em) {
       player.emote = em;
-      player.emoteTimer = 100;
+      player.emoteTimer = 90;
     }
 
-    function resetCamera() {
+    function handleChat(e) {
+      e.preventDefault();
+      const input = document.getElementById('chatInput');
+      const val = input.value.trim();
+      if (val) {
+        player.bubbleText = val;
+        player.bubbleTimer = 180; // Show for 3 seconds
+        input.value = '';
+      }
+    }
+
+    function centerPlayer() {
       player.targetGx = 4;
       player.targetGy = 4;
       player.isMoving = true;
