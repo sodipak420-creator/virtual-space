@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Oiioii Space</title>
+  <title>Oiioii Space • Virtual Sandbox</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html, body {
@@ -15,18 +15,17 @@
 </head>
 <body class="bg-slate-950 text-slate-100 flex flex-col items-center justify-between select-none">
 
-  <!-- Header HUD -->
-  <header class="w-full max-w-md flex items-center justify-between px-4 py-2.5 bg-slate-900/90 backdrop-blur z-20 border-b border-slate-800">
+  <header class="w-full max-w-md flex items-center justify-between px-4 py-2 bg-slate-900/90 backdrop-blur z-20 border-b border-slate-800">
     <div class="flex items-center gap-2">
       <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
       <span class="text-xs font-black text-pink-400 tracking-wider">OIIOII SPACE</span>
-      <span class="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">Room #101</span>
+      <span class="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded font-mono">Room #101</span>
     </div>
     <div class="flex gap-1.5">
-      <button onclick="toggleSound()" id="soundBtn" class="px-2.5 py-1.5 bg-slate-800 active:scale-95 text-xs font-bold rounded-xl border border-slate-700">
+      <button onclick="toggleAudio()" id="audioBtn" class="px-2.5 py-1.5 bg-slate-800 active:scale-95 text-xs font-bold rounded-xl border border-slate-700 text-slate-200">
         🔈 Lofi
       </button>
-      <button onclick="toggleModal('wardrobeModal')" class="px-2.5 py-1.5 bg-slate-800 active:scale-95 text-xs font-bold rounded-xl border border-slate-700">
+      <button onclick="toggleModal('wardrobeModal')" class="px-2.5 py-1.5 bg-slate-800 active:scale-95 text-xs font-bold rounded-xl border border-slate-700 text-slate-200">
         👗 Style
       </button>
       <button onclick="toggleModal('decorModal')" class="px-2.5 py-1.5 bg-pink-500 active:scale-95 text-xs font-black rounded-xl text-slate-950 shadow-md shadow-pink-500/20">
@@ -35,22 +34,18 @@
     </div>
   </header>
 
-  <!-- Viewport -->
   <main class="relative w-full max-w-md flex-1 overflow-hidden bg-slate-950">
     <canvas id="spaceCanvas" class="w-full h-full block"></canvas>
 
-    <!-- Bottom Controls -->
     <div class="absolute bottom-3 inset-x-3 flex flex-col gap-2 pointer-events-none z-10">
       
-      <!-- Chat Form -->
       <form onsubmit="handleChat(event)" class="flex gap-1.5 pointer-events-auto">
-        <input id="chatInput" type="text" placeholder="Type a message..." maxlength="40" class="flex-1 bg-slate-900/90 backdrop-blur border border-slate-700 text-xs px-3 py-2 rounded-xl text-white outline-none focus:border-pink-500" />
-        <button type="submit" class="px-3.5 bg-pink-500 active:scale-95 text-slate-950 font-black text-xs rounded-xl shadow-md">
+        <input id="chatInput" type="text" placeholder="Type a message..." maxlength="40" class="flex-1 bg-slate-900/90 backdrop-blur border border-slate-700 text-xs px-3 py-2 rounded-xl text-white outline-none focus:border-pink-500 placeholder-slate-500" />
+        <button type="submit" class="px-4 bg-pink-500 active:scale-95 text-slate-950 font-black text-xs rounded-xl shadow-md">
           Send
         </button>
       </form>
 
-      <!-- Quick Action Row -->
       <div class="flex justify-between items-center">
         <div class="flex gap-1.5 pointer-events-auto">
           <button onclick="centerPlayer()" class="px-3 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-slate-300 active:scale-95">
@@ -59,8 +54,8 @@
           <button onclick="spawnFriend()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-cyan-400 active:scale-95">
             + Friend 👾
           </button>
-          <button onclick="clearDecor()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-rose-400 active:scale-95">
-            Clear 🧹
+          <button onclick="clearRoom()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-rose-400 active:scale-95">
+            Reset 🧹
           </button>
         </div>
         <div class="flex gap-1.5 pointer-events-auto">
@@ -72,7 +67,6 @@
       </div>
     </div>
 
-    <!-- Wardrobe Modal -->
     <div id="wardrobeModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
         <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Avatar Studio</span>
@@ -100,7 +94,6 @@
       </div>
     </div>
 
-    <!-- Decor Modal -->
     <div id="decorModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
         <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Place 3D Furniture</span>
@@ -108,19 +101,19 @@
       </div>
       <div class="grid grid-cols-4 gap-2 text-xs">
         <button onclick="addFurniture('desk')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">🖥️</span>
-          <span class="text-[10px] text-slate-300">PC Desk</span>
+          <span class="text-xl">🖥️</span>
+          <span class="text-[10px] text-slate-300">Workstation</span>
         </button>
         <button onclick="addFurniture('bed')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">🛏️</span>
+          <span class="text-xl">🛏️</span>
           <span class="text-[10px] text-slate-300">Cozy Bed</span>
         </button>
         <button onclick="addFurniture('sofa')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">🛋️</span>
+          <span class="text-xl">🛋️</span>
           <span class="text-[10px] text-slate-300">Lounge</span>
         </button>
         <button onclick="addFurniture('plant')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">🪴</span>
+          <span class="text-xl">🪴</span>
           <span class="text-[10px] text-slate-300">Monstera</span>
         </button>
       </div>
@@ -148,6 +141,7 @@
     const TILE_H = 46 * dpr;
     const WALL_H = 190 * dpr;
 
+    // Persisted Avatar & Furniture
     const savedHair = localStorage.getItem('oiioii_hair') || '#06b6d4';
     const savedOutfit = localStorage.getItem('oiioii_outfit') || '#ffffff';
     const savedFurniture = localStorage.getItem('oiioii_decor');
@@ -176,11 +170,11 @@
       { type: 'sofa', gx: 5, gy: 5 }
     ];
 
-    const motes = Array.from({ length: 20 }, () => ({
+    const motes = Array.from({ length: 22 }, () => ({
       x: Math.random() * 1000,
       y: Math.random() * 1000,
       r: (Math.random() * 1.5 + 0.5) * dpr,
-      speed: Math.random() * 0.4 + 0.2
+      speed: Math.random() * 0.35 + 0.2
     }));
 
     function saveDecorState() {
@@ -204,52 +198,65 @@
       return { gx, gy };
     }
 
-    // Web Audio Synthesizer for Lo-Fi Chords
+    // Generative Lo-Fi Audio Engine
     let audioCtx = null;
     let isPlayingAudio = false;
     let audioInterval = null;
 
-    function toggleSound() {
+    function toggleAudio() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       isPlayingAudio = !isPlayingAudio;
-      document.getElementById('soundBtn').innerText = isPlayingAudio ? '🔊 Lofi' : '🔈 Lofi';
+      document.getElementById('audioBtn').innerText = isPlayingAudio ? '🔊 Lofi' : '🔈 Lofi';
       
       if (isPlayingAudio) {
         audioInterval = setInterval(() => {
           if (!isPlayingAudio) return;
-          const notes = [261.63, 329.63, 392.00, 523.25];
+          const chords = [261.63, 329.63, 392.00, 523.25];
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(notes[Math.floor(Math.random() * notes.length)], audioCtx.currentTime);
-          gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.5);
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(chords[Math.floor(Math.random() * chords.length)], audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.035, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.4);
           osc.connect(gain);
           gain.connect(audioCtx.destination);
           osc.start();
-          osc.stop(audioCtx.currentTime + 2.5);
-        }, 1800);
+          osc.stop(audioCtx.currentTime + 2.4);
+        }, 1600);
       } else {
         clearInterval(audioInterval);
       }
     }
 
+    // 2. Anti-Crowd Friend Cap (Max 4)
     function spawnFriend() {
+      if (friends.length >= 4) {
+        alert("Room capacity reached! Max 4 visitor friends.");
+        return;
+      }
+      const names = ['Kai', 'Mika', 'Leo', 'Nova'];
       friends.push({
+        name: names[friends.length],
         gx: Math.floor(Math.random() * (GRID_SIZE - 2)) + 1,
         gy: Math.floor(Math.random() * (GRID_SIZE - 2)) + 1,
         targetGx: 4, targetGy: 4,
         speed: 0.05,
         isMoving: false,
-        hairColor: '#f59e0b',
-        outfitColor: '#10b981',
+        hairColor: ['#f59e0b', '#10b981', '#ec4899', '#a855f7'][friends.length],
+        outfitColor: ['#1e293b', '#06b6d4', '#f43f5e', '#3b82f6'][friends.length],
         bubbleText: 'Oiioii! ✨',
-        bubbleTimer: 180
+        bubbleTimer: 150
       });
     }
 
+    function clearRoom() {
+      friends = [];
+      furniture = [];
+      saveDecorState();
+    }
+
     function update() {
-      // Update Main Player
+      // Player Movement & Sitting Check
       if (player.isMoving) {
         const dx = player.targetGx - player.gx;
         const dy = player.targetGy - player.gy;
@@ -259,6 +266,8 @@
           player.gx = player.targetGx;
           player.gy = player.targetGy;
           player.isMoving = false;
+
+          // 3. Sitting detection on Beds / Lounges
           const seat = furniture.find(f => f.gx === Math.round(player.gx) && f.gy === Math.round(player.gy) && (f.type === 'sofa' || f.type === 'bed'));
           player.isSitting = !!seat;
         } else {
@@ -268,11 +277,11 @@
         }
       }
 
-      // Update Friends AI
+      // Friends Autonomous AI
       for (let f of friends) {
-        if (!f.isMoving && Math.random() < 0.015) {
-          f.targetGx = Math.floor(Math.random() * GRID_SIZE);
-          f.targetGy = Math.floor(Math.random() * GRID_SIZE);
+        if (!f.isMoving && Math.random() < 0.012) {
+          f.targetGx = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
+          f.targetGy = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
           f.isMoving = true;
         }
         if (f.isMoving) {
@@ -300,7 +309,7 @@
       }
     }
 
-    // DRAW TRUE ISOMETRIC 3D VECTOR FURNITURE
+    // 1. True Vector Isometric 3D Furniture
     function render3DFurniture(item, ox, oy) {
       const fIso = toIso(item.gx, item.gy);
       const fx = ox + fIso.x;
@@ -308,28 +317,35 @@
 
       ctx.save();
       if (item.type === 'desk') {
-        // Wooden tabletop
-        ctx.fillStyle = '#475569';
+        // Modern Minimalist Desk with Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
         ctx.beginPath();
-        ctx.moveTo(fx, fy - 16 * dpr);
-        ctx.lineTo(fx + 24 * dpr, fy - 28 * dpr);
-        ctx.lineTo(fx, fy - 40 * dpr);
-        ctx.lineTo(fx - 24 * dpr, fy - 28 * dpr);
-        ctx.closePath();
+        ctx.ellipse(fx, fy - 2 * dpr, 24 * dpr, 12 * dpr, 0, 0, Math.PI * 2);
         ctx.fill();
 
         // Legs
-        ctx.strokeStyle = '#334155';
-        ctx.lineWidth = 2 * dpr;
-        ctx.strokeRect(fx - 20 * dpr, fy - 26 * dpr, 2 * dpr, 14 * dpr);
-        ctx.strokeRect(fx + 18 * dpr, fy - 26 * dpr, 2 * dpr, 14 * dpr);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(fx - 22 * dpr, fy - 22 * dpr, 3 * dpr, 18 * dpr);
+        ctx.fillRect(fx + 19 * dpr, fy - 22 * dpr, 3 * dpr, 18 * dpr);
 
-        // Laptop glow screen
+        // Desk Surface
+        ctx.fillStyle = '#475569';
+        ctx.beginPath();
+        ctx.moveTo(fx, fy - 16 * dpr);
+        ctx.lineTo(fx + 26 * dpr, fy - 29 * dpr);
+        ctx.lineTo(fx, fy - 42 * dpr);
+        ctx.lineTo(fx - 26 * dpr, fy - 29 * dpr);
+        ctx.closePath();
+        ctx.fill();
+
+        // Glowing Dual Monitor Display
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(fx - 8 * dpr, fy - 45 * dpr, 16 * dpr, 10 * dpr);
         ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(fx - 6 * dpr, fy - 42 * dpr, 12 * dpr, 9 * dpr);
+        ctx.fillRect(fx - 6 * dpr, fy - 43 * dpr, 12 * dpr, 6 * dpr);
       } else if (item.type === 'bed') {
-        // Bed Base
-        ctx.fillStyle = '#334155';
+        // Wooden Bed Base
+        ctx.fillStyle = '#1e293b';
         ctx.beginPath();
         ctx.moveTo(fx, fy);
         ctx.lineTo(fx + 30 * dpr, fy - 15 * dpr);
@@ -338,41 +354,42 @@
         ctx.closePath();
         ctx.fill();
 
-        // Mattress & Duvet
+        // Neon Duvet Quilt
         ctx.fillStyle = '#ec4899';
         ctx.beginPath();
-        ctx.moveTo(fx, fy - 6 * dpr);
-        ctx.lineTo(fx + 26 * dpr, fy - 19 * dpr);
-        ctx.lineTo(fx, fy - 32 * dpr);
-        ctx.lineTo(fx - 26 * dpr, fy - 19 * dpr);
+        ctx.moveTo(fx, fy - 5 * dpr);
+        ctx.lineTo(fx + 26 * dpr, fy - 18 * dpr);
+        ctx.lineTo(fx, fy - 31 * dpr);
+        ctx.lineTo(fx - 26 * dpr, fy - 18 * dpr);
         ctx.closePath();
         ctx.fill();
 
-        // Pillows
+        // White Bed Pillows
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(fx - 14 * dpr, fy - 30 * dpr, 12 * dpr, 6 * dpr);
       } else if (item.type === 'sofa') {
-        // Lounge Couch
+        // Lounge Couch Cushion
+        ctx.fillStyle = '#4f46e5';
+        ctx.beginPath();
+        ctx.roundRect(fx - 24 * dpr, fy - 26 * dpr, 48 * dpr, 22 * dpr, 6 * dpr);
+        ctx.fill();
         ctx.fillStyle = '#6366f1';
         ctx.beginPath();
-        ctx.roundRect(fx - 22 * dpr, fy - 24 * dpr, 44 * dpr, 20 * dpr, 6 * dpr);
-        ctx.fill();
-        ctx.fillStyle = '#4f46e5';
-        ctx.roundRect(fx - 18 * dpr, fy - 18 * dpr, 36 * dpr, 14 * dpr, 4 * dpr);
+        ctx.roundRect(fx - 20 * dpr, fy - 20 * dpr, 40 * dpr, 14 * dpr, 4 * dpr);
         ctx.fill();
       } else if (item.type === 'plant') {
-        // Ceramic Pot
-        ctx.fillStyle = '#f97316';
+        // Terracotta Pot
+        ctx.fillStyle = '#ea580c';
         ctx.beginPath();
         ctx.arc(fx, fy - 8 * dpr, 8 * dpr, 0, Math.PI * 2);
         ctx.fill();
 
-        // Foliage Leaves
+        // Monstera Foliage
         ctx.fillStyle = '#10b981';
         ctx.beginPath();
-        ctx.arc(fx - 5 * dpr, fy - 18 * dpr, 7 * dpr, 0, Math.PI * 2);
-        ctx.arc(fx + 5 * dpr, fy - 20 * dpr, 8 * dpr, 0, Math.PI * 2);
-        ctx.arc(fx, fy - 25 * dpr, 9 * dpr, 0, Math.PI * 2);
+        ctx.arc(fx - 6 * dpr, fy - 19 * dpr, 8 * dpr, 0, Math.PI * 2);
+        ctx.arc(fx + 6 * dpr, fy - 21 * dpr, 9 * dpr, 0, Math.PI * 2);
+        ctx.arc(fx, fy - 26 * dpr, 10 * dpr, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.restore();
@@ -383,7 +400,7 @@
       const ax = ox + pIso.x;
       const ay = oy + pIso.y + TILE_H / 2;
 
-      // Shadow
+      // Drop Shadow
       ctx.beginPath();
       ctx.ellipse(ax, ay, 16 * dpr, 8 * dpr, 0, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -399,7 +416,7 @@
         ctx.fillRect(ax + 2 * dpr, ay - 10 * dpr - walkBob, 4 * dpr, 9 * dpr);
       }
 
-      // Body
+      // Body / Outfit
       ctx.fillStyle = char.outfitColor;
       ctx.beginPath();
       ctx.roundRect(ax - 10 * dpr, ay - 28 * dpr + walkBob + sitOffset, 20 * dpr, 18 * dpr, 5 * dpr);
@@ -458,7 +475,7 @@
       const ox = W / 2;
       const oy = (H / 2) - 10 * dpr;
 
-      // 1. Isometric Walls
+      // Isometric Walls
       const cornerTop = toIso(0, 0);
       const cornerLeft = toIso(0, GRID_SIZE);
       const cornerRight = toIso(GRID_SIZE, 0);
@@ -481,7 +498,7 @@
       ctx.closePath();
       ctx.fill();
 
-      // Cyber Window
+      // Cyber Neon Window
       const winGrad = ctx.createLinearGradient(ox - 60 * dpr, oy - 120 * dpr, ox - 10 * dpr, oy - 45 * dpr);
       winGrad.addColorStop(0, 'rgba(6, 182, 212, 0.45)');
       winGrad.addColorStop(1, 'rgba(236, 72, 153, 0.25)');
@@ -497,7 +514,7 @@
       ctx.fill();
       ctx.stroke();
 
-      // Floor Seam Line
+      // Neon Trim
       ctx.strokeStyle = '#ec4899';
       ctx.lineWidth = 2.5 * dpr;
       ctx.beginPath();
@@ -506,7 +523,7 @@
       ctx.lineTo(ox + cornerRight.x, oy + cornerRight.y);
       ctx.stroke();
 
-      // 2. Floor Grid
+      // Floor Grid
       for (let x = 0; x < GRID_SIZE; x++) {
         for (let y = 0; y < GRID_SIZE; y++) {
           const iso = toIso(x, y);
@@ -528,7 +545,7 @@
         }
       }
 
-      // 3. Ambient Dust Motes
+      // Ambient Dust Motes
       ctx.fillStyle = 'rgba(236, 72, 153, 0.35)';
       for (let m of motes) {
         ctx.beginPath();
@@ -536,7 +553,7 @@
         ctx.fill();
       }
 
-      // 4. Movement Target Marker
+      // Target Movement Circle
       if (player.isMoving) {
         const tIso = toIso(player.targetGx, player.targetGy);
         const tx = ox + tIso.x;
@@ -548,7 +565,7 @@
         ctx.stroke();
       }
 
-      // 5. Depth Sorted Rendering (Items & Characters)
+      // Depth Sorted Rendering
       const renderList = [
         ...furniture.map(f => ({ type: 'furniture', data: f, depth: f.gx + f.gy })),
         ...friends.map(fr => ({ type: 'friend', data: fr, depth: fr.gx + fr.gy })),
@@ -571,7 +588,7 @@
       requestAnimationFrame(render);
     }
 
-    // Tap Handling
+    // 4. Tap to Walk & Furniture Deletion / Pickup
     canvas.addEventListener('pointerdown', (e) => {
       closeAllModals();
       const rect = canvas.getBoundingClientRect();
@@ -583,6 +600,17 @@
       const ty = Math.round(coord.gy);
 
       if (tx >= 0 && tx < GRID_SIZE && ty >= 0 && ty < GRID_SIZE) {
+        // If clicking existing furniture, prompt to pickup/delete
+        const hitIndex = furniture.findIndex(f => f.gx === tx && f.gy === ty);
+        if (hitIndex !== -1 && hitIndex !== null) {
+          const conf = confirm(`Remove ${furniture[hitIndex].type}?`);
+          if (conf) {
+            furniture.splice(hitIndex, 1);
+            saveDecorState();
+            return;
+          }
+        }
+
         player.targetGx = tx;
         player.targetGy = ty;
         player.isMoving = true;
@@ -601,6 +629,7 @@
       document.getElementById('decorModal').classList.add('hidden');
     }
 
+    // 5. Wardrobe Persistence
     function setHair(c) {
       player.hairColor = c;
       localStorage.setItem('oiioii_hair', c);
@@ -615,11 +644,6 @@
       furniture.push({ type, gx: Math.round(player.gx), gy: Math.round(player.gy) });
       saveDecorState();
       closeAllModals();
-    }
-
-    function clearDecor() {
-      furniture = [];
-      saveDecorState();
     }
 
     function triggerEmote(em) {
