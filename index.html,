@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Spatial Virtual Room</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { touch-action: none; }
+    canvas { touch-action: none; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-2 font-sans select-none overflow-hidden">
+
+  <!-- Mobile HUD Header -->
+  <header class="w-full max-w-md flex items-center justify-between px-4 py-2 bg-slate-900/90 backdrop-blur rounded-2xl border border-slate-800 mb-2">
+    <div>
+      <h1 class="text-sm font-black text-pink-400">Oiioii Space • Prototype</h1>
+      <p class="text-[10px] text-slate-400">Tap anywhere on the floor to walk</p>
+    </div>
+    <div class="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full text-[10px] font-bold">
+      Online
+    </div>
+  </header>
+
+  <!-- Interactive Space Viewport -->
+  <div class="relative w-full max-w-md aspect-[4/5] bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden">
+    <canvas id="spaceCanvas" class="w-full h-full object-cover"></canvas>
+
+    <!-- Floating Quick Actions -->
+    <div class="absolute bottom-3 left-3 right-3 flex justify-between pointer-events-none">
+      <button onclick="centerCamera()" class="pointer-events-auto px-3 py-2 bg-slate-950/80 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-slate-200 active:scale-95 transition-all">
+        Center View 🎯
+      </button>
+      <button onclick="triggerEmote()" class="pointer-events-auto px-3 py-2 bg-pink-500 text-slate-950 text-xs font-black rounded-xl active:scale-95 transition-all shadow-lg shadow-pink-500/20">
+        Say Hello 👋
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('spaceCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let W, H;
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      W = canvas.width;
+      H = canvas.height;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Isometric Grid Configuration
+    const GRID_SIZE = 8;
+    const TILE_WIDTH = 110 * (window.devicePixelRatio || 1);
+    const TILE_HEIGHT = 55 * (window.devicePixelRatio || 1);
+
+    // Player State
+    const player = {
+      gx: 3,
+      gy: 3,
+      targetGx: 3,
+      targetGy: 3,
+      speed: 0.08,
+      isMoving: false,
+      emote: null,
+      emoteTimer: 0
+    };
+
+    // Camera State
+    let camera = { x: 0, y: 0 };
+
+    function toIso(gx, gy) {
+      return {
+        x: (gx - gy) * (TILE_WIDTH / 2),
+        y: (gx + gy) * (TILE_HEIGHT / 2)
+      };
+    }
+
+    function fromIso(screenX, screenY) {
+      const relX = screenX - (W / 2 + camera.x);
+      const relY = screenY - (H / 2 - 80 + camera.y);
+      const gx = (relX / (TILE_WIDTH / 2) + relY / (TILE_HEIGHT / 2)) / 2;
+      const gy = (relY / (TILE_HEIGHT / 2) - relX / (TILE_WIDTH / 2)) / 2;
+      return { gx, gy };
+    }
+
+    function update() {
+      // Linear interpolation walk toward target
+      if (player.isMoving) {
+        const dx = player.targetGx - player.gx;
+        const dy = player.targetGy - player.gy;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < 0.05) {
+          player.gx = player.targetGx;
+          player.gy = player.targetGy;
+          player.isMoving = false;
+        } else {
+          player.gx += (dx / dist) * player.speed;
+          player.gy += (dy / dist) * player.speed;
+        }
+      }
+
+      if (player.emoteTimer > 0) {
+        player.emoteTimer--;
+        if (player.emoteTimer <= 0) player.emote = null;
+      }
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, W, H);
+
+      const originX = W / 2 + camera.x;
+      const originY = H / 2 - 80 + camera.y;
+
+      // 1. Draw Isometric Room Floor Tiles
+      for (let x = 0; x < GRID_SIZE; x++) {
+        for (let y = 0; y < GRID_SIZE; y++) {
+          const iso = toIso(x, y);
+          const px = originX + iso.x;
+          const py = originY + iso.y;
+
+          ctx.beginPath();
+          ctx.moveTo(px, py);
+          ctx.lineTo(px + TILE_WIDTH / 2, py + TILE_HEIGHT / 2);
+          ctx.lineTo(px, py + TILE_HEIGHT);
+          ctx.lineTo(px - TILE_WIDTH / 2, py + TILE_HEIGHT / 2);
+          ctx.closePath();
+
+          // Checkerboard floor styling
+          ctx.fillStyle = ((x + y) % 2 === 0) ? '#1e293b' : '#0f172a';
+          ctx.fill();
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+
+      // 2. Draw Target Click Marker
+      if (player.isMoving) {
+        const targetIso = toIso(player.targetGx, player.targetGy);
+        const tpx = originX + targetIso.x;
+        const tpy = originY + targetIso.y + TILE_HEIGHT / 2;
+
+        ctx.beginPath();
+        ctx.ellipse(tpx, tpy, TILE_WIDTH / 4, TILE_HEIGHT / 4, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(244, 63, 94, 0.25)';
+        ctx.fill();
+        ctx.strokeStyle = '#f43f5e';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // 3. Draw Player Avatar (Isometric Position)
+      const pIso = toIso(player.gx, player.gy);
+      const avatarX = originX + pIso.x;
+      const avatarY = originY + pIso.y + TILE_HEIGHT / 2;
+
+      // Avatar Shadow
+      ctx.beginPath();
+      ctx.ellipse(avatarX, avatarY, 22, 11, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      ctx.fill();
+
+      // Avatar Body
+      const bobbing = player.isMoving ? Math.sin(Date.now() * 0.015) * 4 : 0;
+      ctx.beginPath();
+      ctx.arc(avatarX, avatarY - 32 + bobbing, 16, 0, Math.PI * 2);
+      ctx.fillStyle = '#ec4899';
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Avatar Name Badge
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillStyle = '#f8fafc';
+      ctx.textAlign = 'center';
+      ctx.fillText('You', avatarX, avatarY - 54 + bobbing);
+
+      // Emote Bubble
+      if (player.emote) {
+        ctx.font = '16px sans-serif';
+        ctx.fillText(player.emote, avatarX, avatarY - 70 + bobbing);
+      }
+
+      update();
+      requestAnimationFrame(render);
+    }
+
+    // Tap to Walk
+    canvas.addEventListener('pointerdown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const clickY = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+      const gridCoord = fromIso(clickX, clickY);
+      const targetX = Math.round(gridCoord.gx);
+      const targetY = Math.round(gridCoord.gy);
+
+      // Keep within room boundaries
+      if (targetX >= 0 && targetX < GRID_SIZE && targetY >= 0 && targetY < GRID_SIZE) {
+        player.targetGx = targetX;
+        player.targetGy = targetY;
+        player.isMoving = true;
+      }
+    });
+
+    function centerCamera() {
+      camera.x = 0;
+      camera.y = 0;
+    }
+
+    function triggerEmote() {
+      player.emote = '👋 Hi!';
+      player.emoteTimer = 120;
+    }
+
+    render();
+  </script>
+</body>
+</html>
