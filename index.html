@@ -2,85 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Oiioii Space • Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#020617" />
+  <title>Oiioii Space • AI Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html, body {
       height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
       touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 flex flex-col items-center justify-between select-none font-sans">
+<body class="bg-slate-950 text-slate-100 flex flex-col items-center justify-between font-sans">
 
-  <!-- Header HUD -->
-  <header id="topHud" class="w-full max-w-md flex items-center justify-between px-3 py-2 bg-slate-900/90 backdrop-blur z-20 border-b border-slate-800">
+  <!-- Top HUD Bar -->
+  <header id="topHud" class="w-full max-w-lg flex items-center justify-between px-3 py-2.5 bg-slate-900/80 backdrop-blur-md z-20 border-b border-slate-800">
     <div class="flex items-center gap-2">
-      <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span class="text-xs font-black text-pink-400 tracking-wider">OIIOII SPACE</span>
-      <span id="lightingBadge" class="text-[9px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded font-mono">🌙 Night</span>
+      <span class="w-2.5 h-2.5 rounded-full bg-pink-500 animate-pulse"></span>
+      <span class="text-xs font-black tracking-widest text-pink-400">OIIOII AI</span>
+      <button onclick="cycleLighting()" id="lightingBadge" class="text-[10px] text-slate-300 bg-slate-800/80 px-2 py-0.5 rounded-md font-mono border border-slate-700 active:scale-95">🌙 Night</button>
     </div>
     <div class="flex gap-1.5">
-      <button onclick="toggleAudio()" id="audioBtn" class="px-2 py-1 bg-slate-800 active:scale-95 text-xs font-bold rounded-xl border border-slate-700 text-slate-200">
+      <button onclick="toggleAudio()" id="audioBtn" class="px-2 py-1 bg-slate-800 active:scale-95 text-xs font-semibold rounded-xl border border-slate-700 text-slate-200">
         🔈 Lofi
       </button>
-      <button onclick="toggleModal('themeModal')" class="px-2 py-1 bg-slate-800 active:scale-95 text-xs font-bold rounded-xl border border-slate-700 text-slate-200">
+      <button onclick="toggleModal('themeModal')" class="px-2 py-1 bg-slate-800 active:scale-95 text-xs font-semibold rounded-xl border border-slate-700 text-slate-200">
         🎨 Room
       </button>
-      <button onclick="toggleModal('wardrobeModal')" class="px-2 py-1 bg-slate-800 active:scale-95 text-xs font-bold rounded-xl border border-slate-700 text-slate-200">
+      <button onclick="toggleModal('wardrobeModal')" class="px-2 py-1 bg-slate-800 active:scale-95 text-xs font-semibold rounded-xl border border-slate-700 text-slate-200">
         👗 Style
       </button>
-      <button onclick="toggleModal('decorModal')" class="px-2.5 py-1 bg-pink-500 active:scale-95 text-xs font-black rounded-xl text-slate-950 shadow-md shadow-pink-500/20">
+      <button onclick="toggleModal('decorModal')" class="px-2.5 py-1 bg-pink-500 active:scale-95 text-xs font-black rounded-xl text-slate-950 shadow-lg shadow-pink-500/20">
         🛋️ Decor
       </button>
     </div>
   </header>
 
   <!-- Placement Banner -->
-  <div id="placementBanner" class="hidden absolute top-14 z-30 bg-emerald-500 text-slate-950 text-xs font-black px-4 py-2 rounded-2xl shadow-xl flex items-center gap-3">
-    <span id="placementNotice">Tap floor or wall to place</span>
-    <button onclick="rotatePending()" class="bg-slate-900 text-white px-2 py-0.5 rounded-lg text-[10px]">🔄 Turn (<span id="rotDeg">0°</span>)</button>
-    <button onclick="cancelPlacement()" class="text-slate-900 font-black">✕</button>
+  <div id="placementBanner" class="hidden absolute top-14 z-30 bg-pink-500 text-slate-950 text-xs font-black px-4 py-2 rounded-2xl shadow-xl flex items-center gap-3">
+    <span id="placementNotice">Tap floor tile to place</span>
+    <button onclick="rotatePending()" class="bg-slate-900 text-white px-2 py-1 rounded-lg text-[10px] font-bold">🔄 Turn (<span id="rotDeg">0°</span>)</button>
+    <button onclick="cancelPlacement()" class="text-slate-950 font-black text-sm">✕</button>
   </div>
 
-  <!-- Main Viewport -->
-  <main class="relative w-full max-w-md flex-1 overflow-hidden bg-slate-950">
+  <!-- Viewport -->
+  <main class="relative w-full max-w-lg flex-1 overflow-hidden bg-slate-950">
     <canvas id="spaceCanvas" class="w-full h-full block"></canvas>
 
-    <!-- Bottom Controls & Chat -->
+    <!-- Bottom HUD & AI Interaction -->
     <div id="hudBottom" class="absolute bottom-3 inset-x-3 flex flex-col gap-2 pointer-events-none z-10 transition-opacity">
       
       <!-- Chat Form -->
-      <form onsubmit="handleChat(event)" class="flex gap-1.5 pointer-events-auto">
-        <input id="chatInput" type="text" placeholder="Chat with visitors..." maxlength="45" class="flex-1 bg-slate-900/90 backdrop-blur border border-slate-700 text-xs px-3 py-2 rounded-xl text-white outline-none focus:border-pink-500 placeholder-slate-500" />
+      <form onsubmit="handleChat(event)" class="flex gap-2 pointer-events-auto">
+        <input id="chatInput" type="text" placeholder="Speak to the room or an NPC..." maxlength="80" class="flex-1 bg-slate-900/90 backdrop-blur border border-slate-700 text-xs px-3.5 py-2.5 rounded-xl text-white outline-none focus:border-pink-500 placeholder-slate-500 shadow-lg" />
         <button type="submit" class="px-4 bg-pink-500 active:scale-95 text-slate-950 font-black text-xs rounded-xl shadow-md">
-          Send
+          Chat
         </button>
       </form>
 
       <!-- Action Row -->
       <div class="flex justify-between items-center">
         <div class="flex gap-1.5 pointer-events-auto">
-          <button onclick="resetCamera()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-slate-300 active:scale-95">
-            Center 🎯
-          </button>
-          <button onclick="spawnFriend()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-cyan-400 active:scale-95">
-            + Friend 👾
-          </button>
-          <button onclick="captureRoomPhoto()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-amber-400 active:scale-95">
-            📸 Snap
-          </button>
-          <button onclick="clearRoom()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-rose-400 active:scale-95">
-            🧹
-          </button>
+          <button onclick="resetCamera()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-slate-300 active:scale-95">🎯 Center</button>
+          <button onclick="spawnFriend()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-cyan-400 active:scale-95">+ AI Bot 👾</button>
+          <button onclick="captureRoomPhoto()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-amber-400 active:scale-95">📸 Snap</button>
+          <button onclick="clearRoom()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-rose-400 active:scale-95">🧹</button>
         </div>
         <div class="flex gap-1 pointer-events-auto">
-          <button onclick="cycleLighting()" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">💡</button>
           <button onclick="triggerEmote('💖')" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">💖</button>
           <button onclick="triggerEmote('👋')" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">👋</button>
-          <button onclick="triggerEmote('🔥')" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">🔥</button>
+          <button onclick="triggerEmote('✨')" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">✨</button>
         </div>
       </div>
     </div>
@@ -88,27 +85,27 @@
     <!-- Wardrobe Modal -->
     <div id="wardrobeModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Avatar Studio</span>
-        <button onclick="toggleModal('wardrobeModal')" class="text-xs text-slate-400 px-2 py-0.5">✕</button>
+        <span class="text-xs font-black text-pink-400 tracking-wider">Avatar Customizer</span>
+        <button onclick="toggleModal('wardrobeModal')" class="text-xs text-slate-400 px-2">✕</button>
       </div>
       <div class="flex items-center justify-between text-xs">
         <span class="font-bold text-slate-300">Hair:</span>
         <div class="flex gap-2">
-          <button onclick="setHair('#06b6d4')" class="w-6 h-6 rounded-full bg-cyan-400 border-2 border-white/50 active:scale-90"></button>
-          <button onclick="setHair('#f59e0b')" class="w-6 h-6 rounded-full bg-amber-500 border-2 border-white/50 active:scale-90"></button>
-          <button onclick="setHair('#ec4899')" class="w-6 h-6 rounded-full bg-pink-500 border-2 border-white/50 active:scale-90"></button>
-          <button onclick="setHair('#10b981')" class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white/50 active:scale-90"></button>
-          <button onclick="setHair('#1e293b')" class="w-6 h-6 rounded-full bg-slate-800 border-2 border-white/50 active:scale-90"></button>
+          <button onclick="setHair('#06b6d4')" class="w-6 h-6 rounded-full bg-cyan-400 border border-white/40 active:scale-90"></button>
+          <button onclick="setHair('#f59e0b')" class="w-6 h-6 rounded-full bg-amber-500 border border-white/40 active:scale-90"></button>
+          <button onclick="setHair('#ec4899')" class="w-6 h-6 rounded-full bg-pink-500 border border-white/40 active:scale-90"></button>
+          <button onclick="setHair('#10b981')" class="w-6 h-6 rounded-full bg-emerald-500 border border-white/40 active:scale-90"></button>
+          <button onclick="setHair('#38bdf8')" class="w-6 h-6 rounded-full bg-sky-400 border border-white/40 active:scale-90"></button>
         </div>
       </div>
       <div class="flex items-center justify-between text-xs">
         <span class="font-bold text-slate-300">Outfit:</span>
         <div class="flex gap-2">
-          <button onclick="setOutfit('#ffffff')" class="w-6 h-6 rounded-full bg-white border-2 border-white/50 active:scale-90"></button>
-          <button onclick="setOutfit('#f43f5e')" class="w-6 h-6 rounded-full bg-rose-500 border-2 border-white/50 active:scale-90"></button>
-          <button onclick="setOutfit('#8b5cf6')" class="w-6 h-6 rounded-full bg-purple-500 border-2 border-white/50 active:scale-90"></button>
-          <button onclick="setOutfit('#10b981')" class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white/50 active:scale-90"></button>
-          <button onclick="setOutfit('#0f172a')" class="w-6 h-6 rounded-full bg-slate-900 border-2 border-white/50 active:scale-90"></button>
+          <button onclick="setOutfit('#ffffff')" class="w-6 h-6 rounded-full bg-white border border-white/40 active:scale-90"></button>
+          <button onclick="setOutfit('#f43f5e')" class="w-6 h-6 rounded-full bg-rose-500 border border-white/40 active:scale-90"></button>
+          <button onclick="setOutfit('#8b5cf6')" class="w-6 h-6 rounded-full bg-purple-500 border border-white/40 active:scale-90"></button>
+          <button onclick="setOutfit('#06b6d4')" class="w-6 h-6 rounded-full bg-cyan-500 border border-white/40 active:scale-90"></button>
+          <button onclick="setOutfit('#0f172a')" class="w-6 h-6 rounded-full bg-slate-900 border border-white/40 active:scale-90"></button>
         </div>
       </div>
     </div>
@@ -116,54 +113,50 @@
     <!-- Theme Modal -->
     <div id="themeModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Room Architecture & Themes</span>
-        <button onclick="toggleModal('themeModal')" class="text-xs text-slate-400 px-2 py-0.5">✕</button>
+        <span class="text-xs font-black text-pink-400 tracking-wider">Room Architecture</span>
+        <button onclick="toggleModal('themeModal')" class="text-xs text-slate-400 px-2">✕</button>
       </div>
       <div class="grid grid-cols-3 gap-2 text-xs">
-        <button onclick="setRoomTheme('cyber')" class="p-2.5 bg-slate-800 rounded-xl border border-slate-700 text-center font-bold">🌌 Cyber</button>
-        <button onclick="setRoomTheme('wood')" class="p-2.5 bg-slate-800 rounded-xl border border-slate-700 text-center font-bold">🪵 Warm Loft</button>
-        <button onclick="setRoomTheme('mint')" class="p-2.5 bg-slate-800 rounded-xl border border-slate-700 text-center font-bold">🌿 Mint Studio</button>
+        <button onclick="setRoomTheme('cyber')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 text-center font-bold">🌌 Cyber</button>
+        <button onclick="setRoomTheme('wood')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 text-center font-bold">🪵 Warm Loft</button>
+        <button onclick="setRoomTheme('mint')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 text-center font-bold">🌿 Studio</button>
       </div>
     </div>
 
-    <!-- 3D Decor Catalog Modal -->
+    <!-- Decor Catalog Modal -->
     <div id="decorModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Decor Catalog</span>
-        <button onclick="toggleModal('decorModal')" class="text-xs text-slate-400 px-2 py-0.5">✕</button>
+        <span class="text-xs font-black text-pink-400 tracking-wider">Decor Store</span>
+        <button onclick="toggleModal('decorModal')" class="text-xs text-slate-400 px-2">✕</button>
       </div>
       <div class="grid grid-cols-4 gap-2 text-xs max-h-56 overflow-y-auto">
         <button onclick="startPlacement('desk')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🖥️</span>
-          <span class="text-[9px] text-slate-300">Desk Pro</span>
+          <span class="text-[9px] text-slate-300">Desk</span>
         </button>
         <button onclick="startPlacement('bed')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🛏️</span>
-          <span class="text-[9px] text-slate-300">Platform Bed</span>
+          <span class="text-[9px] text-slate-300">Bed</span>
         </button>
         <button onclick="startPlacement('sofa')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🛋️</span>
-          <span class="text-[9px] text-slate-300">Sectional</span>
+          <span class="text-[9px] text-slate-300">Sofa</span>
         </button>
         <button onclick="startPlacement('plant')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🪴</span>
-          <span class="text-[9px] text-slate-300">Monstera</span>
-        </button>
-        <button onclick="startPlacement('chair')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-base">🪑</span>
-          <span class="text-[9px] text-slate-300">Ergo Chair</span>
+          <span class="text-[9px] text-slate-300">Plant</span>
         </button>
         <button onclick="startPlacement('arcade')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🕹️</span>
-          <span class="text-[9px] text-slate-300">Arcade Rig</span>
+          <span class="text-[9px] text-slate-300">Arcade</span>
         </button>
         <button onclick="startPlacement('lamp')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">💡</span>
-          <span class="text-[9px] text-slate-300">Lava Lamp</span>
+          <span class="text-[9px] text-slate-300">Lamp</span>
         </button>
         <button onclick="startPlacement('poster')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
           <span class="text-base">🖼️</span>
-          <span class="text-[9px] text-slate-300">Wall Poster</span>
+          <span class="text-[9px] text-slate-300">Art</span>
         </button>
       </div>
     </div>
@@ -174,10 +167,12 @@
     const ctx = canvas.getContext('2d');
 
     let W, H;
+    const dpr = window.devicePixelRatio || 1;
+
     function resize() {
       const rect = canvas.parentElement.getBoundingClientRect();
-      canvas.width = rect.width * (window.devicePixelRatio || 1);
-      canvas.height = rect.height * (window.devicePixelRatio || 1);
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
       W = canvas.width;
       H = canvas.height;
     }
@@ -185,21 +180,13 @@
     resize();
 
     const GRID_SIZE = 7;
-    const dpr = window.devicePixelRatio || 1;
-    const TILE_W = 106 * dpr;
-    const TILE_H = 53 * dpr;
+    const TILE_W = 104 * dpr;
+    const TILE_H = 52 * dpr;
     const WALL_H = 260 * dpr;
 
-    // Shift camera Y up by -190px to place entire room safely above the bottom chat bar
-    let camera = { x: 0, y: -190 * dpr, zoom: 1.0 };
+    let camera = { x: 0, y: -180 * dpr, zoom: 1.0 };
     let isDraggingCam = false;
     let lastTouch = { x: 0, y: 0 };
-
-    // Clear stale, incompatible legacy layouts
-    if (localStorage.getItem('oiioii_version') !== 'v3.0') {
-      localStorage.removeItem('oiioii_decor');
-      localStorage.setItem('oiioii_version', 'v3.0');
-    }
 
     const savedHair = localStorage.getItem('oiioii_hair') || '#06b6d4';
     const savedOutfit = localStorage.getItem('oiioii_outfit') || '#ffffff';
@@ -221,8 +208,6 @@
       direction: 'S',
       isMoving: false,
       isSitting: false,
-      isGaming: false,
-      isTyping: false,
       skinColor: '#fcd34d',
       hairColor: savedHair,
       outfitColor: savedOutfit,
@@ -232,26 +217,22 @@
       emoteTimer: 0
     };
 
+    // AI Bots with personality profiles
     let friends = [];
+    const BOT_PROFILES = [
+      { name: 'Mika', role: 'Cyberpunk Poet', hair: '#ec4899', outfit: '#3b82f6', mood: 'chill' },
+      { name: 'Kai', role: 'Synth Hacker', hair: '#06b6d4', outfit: '#0f172a', mood: 'curious' },
+      { name: 'Nova', role: 'Vibe Architect', hair: '#f59e0b', outfit: '#10b981', mood: 'energetic' }
+    ];
 
     let furniture = savedFurniture ? JSON.parse(savedFurniture) : [
       { type: 'bed', gx: 1, gy: 4, rot: 0 },
       { type: 'desk', gx: 2, gy: 1, rot: 0, active: true },
-      { type: 'chair', gx: 2, gy: 2, rot: 0 },
       { type: 'sofa', gx: 4, gy: 4, rot: 0 },
       { type: 'plant', gx: 5, gy: 1, rot: 0 },
       { type: 'arcade', gx: 4, gy: 1, rot: 0, active: true },
       { type: 'poster', gx: 0, gy: 2, rot: 0, isWall: true, wallSide: 'left' }
     ];
-
-    const motes = Array.from({ length: 24 }, () => ({
-      x: Math.random() * 1000,
-      y: Math.random() * 1000,
-      r: (Math.random() * 1.6 + 0.6) * dpr,
-      speed: Math.random() * 0.35 + 0.2
-    }));
-
-    let trafficX = 0;
 
     function saveDecorState() {
       localStorage.setItem('oiioii_decor', JSON.stringify(furniture));
@@ -269,12 +250,13 @@
       const oy = (H / 2) + camera.y;
       const relX = (screenX - ox) / camera.zoom;
       const relY = (screenY - oy) / camera.zoom;
-      const gx = (relX / (TILE_W / 2) + relY / (TILE_H / 2)) / 2;
-      const gy = (relY / (TILE_H / 2) - relX / (TILE_W / 2)) / 2;
-      return { gx, gy };
+      return {
+        gx: (relX / (TILE_W / 2) + relY / (TILE_H / 2)) / 2,
+        gy: (relY / (TILE_H / 2) - relX / (TILE_W / 2)) / 2
+      };
     }
 
-    // Audio SFX Engine
+    // Audio Engine
     let audioCtx = null;
     let isPlayingAudio = false;
     let audioInterval = null;
@@ -286,26 +268,19 @@
         const gain = audioCtx.createGain();
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        const now = audioCtx.currentTime;
+        const t = audioCtx.currentTime;
 
         if (type === 'tap') {
-          osc.frequency.setValueAtTime(340, now);
-          gain.gain.setValueAtTime(0.02, now);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
-          osc.start(now); osc.stop(now + 0.06);
+          osc.frequency.setValueAtTime(320, t);
+          gain.gain.setValueAtTime(0.02, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+          osc.start(t); osc.stop(t + 0.05);
         } else if (type === 'drop') {
-          osc.frequency.setValueAtTime(260, now);
-          osc.frequency.exponentialRampToValueAtTime(120, now + 0.12);
-          gain.gain.setValueAtTime(0.04, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-          osc.start(now); osc.stop(now + 0.12);
-        } else if (type === 'arcade') {
-          osc.type = 'square';
-          osc.frequency.setValueAtTime(523.25, now);
-          osc.frequency.setValueAtTime(659.25, now + 0.08);
-          gain.gain.setValueAtTime(0.02, now);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
-          osc.start(now); osc.stop(now + 0.2);
+          osc.frequency.setValueAtTime(240, t);
+          osc.frequency.exponentialRampToValueAtTime(100, t + 0.1);
+          gain.gain.setValueAtTime(0.04, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+          osc.start(t); osc.stop(t + 0.1);
         }
       } catch(e) {}
     }
@@ -314,22 +289,22 @@
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       isPlayingAudio = !isPlayingAudio;
       document.getElementById('audioBtn').innerText = isPlayingAudio ? '🔊 Lofi' : '🔈 Lofi';
-      
+
       if (isPlayingAudio) {
         audioInterval = setInterval(() => {
           if (!isPlayingAudio) return;
-          const chords = [261.63, 329.63, 392.00, 523.25, 440.00];
+          const notes = [261.63, 329.63, 392.00, 523.25];
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(chords[Math.floor(Math.random() * chords.length)], audioCtx.currentTime);
-          gain.gain.setValueAtTime(0.035, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.4);
+          osc.frequency.setValueAtTime(notes[Math.floor(Math.random() * notes.length)], audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.0);
           osc.connect(gain);
           gain.connect(audioCtx.destination);
           osc.start();
-          osc.stop(audioCtx.currentTime + 2.4);
-        }, 1500);
+          osc.stop(audioCtx.currentTime + 2.0);
+        }, 1600);
       } else {
         clearInterval(audioInterval);
       }
@@ -355,35 +330,26 @@
     }
 
     function spawnFriend() {
-      if (friends.length >= 4) {
-        alert("Room is cozy! Max 4 friends.");
+      if (friends.length >= BOT_PROFILES.length) {
+        alert("Maximum bot visitors reached!");
         return;
       }
-      const names = ['Kai', 'Mika', 'Leo', 'Nova'];
-      let spawnX = 3, spawnY = 3;
-      for (let attempt = 0; attempt < 10; attempt++) {
-        const rx = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
-        const ry = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
-        if (!isTileSolid(rx, ry)) {
-          spawnX = rx; spawnY = ry;
-          break;
-        }
-      }
-
+      const prof = BOT_PROFILES[friends.length];
       friends.push({
-        name: names[friends.length],
-        gx: spawnX,
-        gy: spawnY,
-        targetGx: spawnX,
-        targetGy: spawnY,
-        speed: 0.05,
+        name: prof.name,
+        role: prof.role,
+        gx: 2 + friends.length,
+        gy: 3,
+        targetGx: 2 + friends.length,
+        targetGy: 3,
+        speed: 0.045,
         direction: 'S',
         isMoving: false,
         isSitting: false,
-        hairColor: ['#f59e0b', '#10b981', '#ec4899', '#a855f7'][friends.length],
-        outfitColor: ['#1e293b', '#06b6d4', '#f43f5e', '#3b82f6'][friends.length],
-        bubbleText: 'Oiioii! ✨',
-        bubbleTimer: 150
+        hairColor: prof.hair,
+        outfitColor: prof.outfit,
+        bubbleText: `Hey! I'm ${prof.name}. 👋`,
+        bubbleTimer: 160
       });
       playSFX('drop');
     }
@@ -397,7 +363,7 @@
 
     function resetCamera() {
       camera.x = 0;
-      camera.y = -190 * dpr;
+      camera.y = -180 * dpr;
       camera.zoom = 1.0;
       player.targetGx = 3;
       player.targetGy = 3;
@@ -405,11 +371,9 @@
     }
 
     function update() {
-      trafficX = (trafficX + 0.4) % 120;
-
       for (let i = tapRipples.length - 1; i >= 0; i--) {
-        tapRipples[i].r += 1.2 * dpr;
-        tapRipples[i].alpha -= 0.04;
+        tapRipples[i].r += 1.4 * dpr;
+        tapRipples[i].alpha -= 0.05;
         if (tapRipples[i].alpha <= 0) tapRipples.splice(i, 1);
       }
 
@@ -419,35 +383,24 @@
         const dy = player.targetGy - player.gy;
         const dist = Math.hypot(dx, dy);
 
-        if (Math.abs(dx) > Math.abs(dy)) {
-          player.direction = dx > 0 ? 'E' : 'W';
-        } else {
-          player.direction = dy > 0 ? 'S' : 'N';
-        }
+        player.direction = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'E' : 'W') : (dy > 0 ? 'S' : 'N');
 
         if (dist < 0.06) {
           player.gx = player.targetGx;
           player.gy = player.targetGy;
           player.isMoving = false;
-
-          const currentTile = furniture.find(f => f.gx === Math.round(player.gx) && f.gy === Math.round(player.gy) && !f.isWall);
-          player.isSitting = currentTile && (currentTile.type === 'sofa' || currentTile.type === 'bed' || currentTile.type === 'chair');
-          player.isGaming = currentTile && (currentTile.type === 'arcade');
-          player.isTyping = currentTile && (currentTile.type === 'desk');
-
-          if (player.isGaming) playSFX('arcade');
+          const hit = furniture.find(f => f.gx === player.gx && f.gy === player.gy && !f.isWall);
+          player.isSitting = hit && (hit.type === 'sofa' || hit.type === 'bed');
         } else {
           player.gx += (dx / dist) * player.speed;
           player.gy += (dy / dist) * player.speed;
           player.isSitting = false;
-          player.isGaming = false;
-          player.isTyping = false;
         }
       }
 
-      // Autonomous Visitor Friends
+      // Bot wander
       for (let f of friends) {
-        if (!f.isMoving && Math.random() < 0.012) {
+        if (!f.isMoving && Math.random() < 0.008) {
           const rx = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
           const ry = Math.floor(Math.random() * (GRID_SIZE - 2)) + 1;
           if (!isTileSolid(rx, ry)) {
@@ -466,12 +419,9 @@
             f.gx = f.targetGx;
             f.gy = f.targetGy;
             f.isMoving = false;
-            const currentTile = furniture.find(item => item.gx === Math.round(f.gx) && item.gy === Math.round(f.gy) && !item.isWall);
-            f.isSitting = currentTile && (currentTile.type === 'sofa' || currentTile.type === 'bed' || currentTile.type === 'chair');
           } else {
             f.gx += (dx / dist) * f.speed;
             f.gy += (dy / dist) * f.speed;
-            f.isSitting = false;
           }
         }
         if (f.bubbleTimer > 0) f.bubbleTimer--;
@@ -479,14 +429,8 @@
 
       if (player.bubbleTimer > 0) player.bubbleTimer--;
       if (player.emoteTimer > 0) player.emoteTimer--;
-
-      for (let m of motes) {
-        m.y -= m.speed;
-        if (m.y < 0) m.y = H;
-      }
     }
 
-    // Extruded Isometric Geometry Engine
     function drawIsoBox(ctx, x, y, w, h, height, topCol, leftCol, rightCol) {
       ctx.fillStyle = topCol;
       ctx.beginPath();
@@ -516,320 +460,149 @@
       ctx.fill();
     }
 
-    // High-Resolution Isometric Vector Models
-    function render3DFurniture(item, ox, oy) {
+    function renderFurniture(item, ox, oy) {
       const z = camera.zoom;
-
-      // Wall Mounted Snap
       if (item.isWall) {
-        const isLeft = item.wallSide !== 'right';
-        const wallX = isLeft ? (ox - 70 * dpr * z) : (ox + 70 * dpr * z);
-        const wallY = oy - 80 * dpr * z - (item.gy * 18 * dpr * z);
-
+        const wallX = item.wallSide === 'left' ? (ox - 65 * dpr * z) : (ox + 65 * dpr * z);
+        const wallY = oy - 80 * dpr * z - (item.gy * 16 * dpr * z);
         ctx.save();
         ctx.translate(wallX, wallY);
-
-        if (item.type === 'poster') {
-          ctx.fillStyle = '#f59e0b';
-          ctx.beginPath();
-          ctx.moveTo(-16 * dpr * z, -24 * dpr * z);
-          ctx.lineTo(16 * dpr * z, -8 * dpr * z);
-          ctx.lineTo(16 * dpr * z, 26 * dpr * z);
-          ctx.lineTo(-16 * dpr * z, 10 * dpr * z);
-          ctx.closePath();
-          ctx.fill();
-
-          ctx.fillStyle = '#ec4899';
-          ctx.beginPath();
-          ctx.moveTo(-13 * dpr * z, -20 * dpr * z);
-          ctx.lineTo(13 * dpr * z, -6 * dpr * z);
-          ctx.lineTo(13 * dpr * z, 22 * dpr * z);
-          ctx.lineTo(-13 * dpr * z, 8 * dpr * z);
-          ctx.closePath();
-          ctx.fill();
-        }
+        ctx.fillStyle = '#ec4899';
+        ctx.fillRect(-14 * dpr * z, -20 * dpr * z, 28 * dpr * z, 36 * dpr * z);
         ctx.restore();
         return;
       }
 
-      // Floor-Placed Objects
       const fIso = toIso(item.gx, item.gy);
       const fx = ox + fIso.x;
-      const fy = oy + fIso.y + (TILE_H / 2) * camera.zoom;
+      const fy = oy + fIso.y + (TILE_H / 2) * z;
 
       ctx.save();
       ctx.translate(fx, fy);
 
       if (item.type === 'bed') {
-        // Platform Base
-        drawIsoBox(ctx, 0, 0, 96 * dpr * z, 48 * dpr * z, 18 * dpr * z, '#334155', '#1e293b', '#0f172a');
-        // Duvet Quilt
-        drawIsoBox(ctx, 0, -4 * dpr * z, 88 * dpr * z, 44 * dpr * z, 16 * dpr * z, '#ec4899', '#db2777', '#be185d');
-        // Pillows
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.ellipse(-20 * dpr * z, -30 * dpr * z, 14 * dpr * z, 7 * dpr * z, 0, 0, Math.PI * 2);
-        ctx.ellipse(16 * dpr * z, -30 * dpr * z, 14 * dpr * z, 7 * dpr * z, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      else if (item.type === 'sofa') {
-        // Sectional Lounge
-        drawIsoBox(ctx, 0, 0, 84 * dpr * z, 42 * dpr * z, 24 * dpr * z, '#6366f1', '#4f46e5', '#3730a3');
-        // Backrest
-        drawIsoBox(ctx, 0, -12 * dpr * z, 84 * dpr * z, 20 * dpr * z, 30 * dpr * z, '#818cf8', '#6366f1', '#4f46e5');
-      }
-      else if (item.type === 'desk') {
-        // Workstation
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(-32 * dpr * z, -20 * dpr * z, 5 * dpr * z, 30 * dpr * z);
-        ctx.fillRect(28 * dpr * z, -20 * dpr * z, 5 * dpr * z, 30 * dpr * z);
-        drawIsoBox(ctx, 0, -20 * dpr * z, 86 * dpr * z, 44 * dpr * z, 10 * dpr * z, '#475569', '#334155', '#1e293b');
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-22 * dpr * z, -68 * dpr * z, 44 * dpr * z, 24 * dpr * z);
-        ctx.fillStyle = item.active !== false ? '#38bdf8' : '#1e293b';
-        ctx.fillRect(-20 * dpr * z, -66 * dpr * z, 40 * dpr * z, 20 * dpr * z);
-      }
-      else if (item.type === 'chair') {
-        drawIsoBox(ctx, 0, 0, 36 * dpr * z, 20 * dpr * z, 16 * dpr * z, '#ec4899', '#db2777', '#9d174d');
-        ctx.fillStyle = '#ec4899';
-        ctx.fillRect(-14 * dpr * z, -36 * dpr * z, 28 * dpr * z, 22 * dpr * z);
-      }
-      else if (item.type === 'plant') {
-        drawIsoBox(ctx, 0, 0, 28 * dpr * z, 16 * dpr * z, 20 * dpr * z, '#ea580c', '#c2410c', '#9a3412');
+        drawIsoBox(ctx, 0, 0, 92 * dpr * z, 46 * dpr * z, 18 * dpr * z, '#334155', '#1e293b', '#0f172a');
+        drawIsoBox(ctx, 0, -4 * dpr * z, 86 * dpr * z, 42 * dpr * z, 16 * dpr * z, '#ec4899', '#db2777', '#9d174d');
+      } else if (item.type === 'sofa') {
+        drawIsoBox(ctx, 0, 0, 84 * dpr * z, 42 * dpr * z, 22 * dpr * z, '#6366f1', '#4f46e5', '#3730a3');
+      } else if (item.type === 'desk') {
+        drawIsoBox(ctx, 0, -18 * dpr * z, 84 * dpr * z, 42 * dpr * z, 10 * dpr * z, '#475569', '#334155', '#1e293b');
+      } else if (item.type === 'plant') {
+        drawIsoBox(ctx, 0, 0, 26 * dpr * z, 16 * dpr * z, 18 * dpr * z, '#ea580c', '#c2410c', '#9a3412');
         ctx.fillStyle = '#10b981';
         ctx.beginPath();
-        ctx.arc(-10 * dpr * z, -32 * dpr * z, 14 * dpr * z, 0, Math.PI * 2);
-        ctx.arc(10 * dpr * z, -38 * dpr * z, 16 * dpr * z, 0, Math.PI * 2);
-        ctx.arc(0, -48 * dpr * z, 16 * dpr * z, 0, Math.PI * 2);
+        ctx.arc(0, -32 * dpr * z, 16 * dpr * z, 0, Math.PI * 2);
         ctx.fill();
-      }
-      else if (item.type === 'arcade') {
-        drawIsoBox(ctx, 0, 0, 44 * dpr * z, 26 * dpr * z, 72 * dpr * z, '#0f172a', '#090d16', '#020617');
+      } else if (item.type === 'arcade') {
+        drawIsoBox(ctx, 0, 0, 42 * dpr * z, 24 * dpr * z, 68 * dpr * z, '#0f172a', '#090d16', '#020617');
+      } else if (item.type === 'lamp') {
         ctx.fillStyle = '#ec4899';
-        ctx.fillRect(-18 * dpr * z, -68 * dpr * z, 36 * dpr * z, 10 * dpr * z);
-        ctx.fillStyle = item.active !== false ? '#06b6d4' : '#1e293b';
-        ctx.fillRect(-15 * dpr * z, -54 * dpr * z, 30 * dpr * z, 20 * dpr * z);
+        ctx.fillRect(-6 * dpr * z, -36 * dpr * z, 12 * dpr * z, 30 * dpr * z);
       }
-      else if (item.type === 'lamp') {
-        ctx.fillStyle = '#334155';
-        ctx.fillRect(-4 * dpr * z, -10 * dpr * z, 8 * dpr * z, 8 * dpr * z);
-        ctx.fillStyle = item.active !== false ? '#f43f5e' : '#64748b';
-        ctx.beginPath();
-        ctx.roundRect(-7 * dpr * z, -48 * dpr * z, 14 * dpr * z, 36 * dpr * z, 7 * dpr * z);
-        ctx.fill();
-        if (item.active !== false) {
-          ctx.shadowColor = '#f43f5e';
-          ctx.shadowBlur = 20 * dpr * z;
-        }
-      }
-
       ctx.restore();
     }
 
-    // High-Resolution Chibi Avatar Renderer (Applied to player & visitor bots)
-    function renderAvatar(char, isSelf, ox, oy, index) {
+    function renderAvatar(char, isSelf, ox, oy) {
       const pIso = toIso(char.gx, char.gy);
       const ax = ox + pIso.x;
       const ay = oy + pIso.y + (TILE_H / 2) * camera.zoom;
       const z = camera.zoom;
 
-      // Soft Drop Shadow
       ctx.beginPath();
-      ctx.ellipse(ax, ay, 18 * dpr * z, 9 * dpr * z, 0, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+      ctx.ellipse(ax, ay, 16 * dpr * z, 8 * dpr * z, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
       ctx.fill();
 
-      const walkBob = char.isMoving ? Math.sin(Date.now() * 0.02) * (4 * dpr * z) : 0;
-      const sitOffset = char.isSitting ? 12 * dpr * z : 0;
+      const bob = char.isMoving ? Math.sin(Date.now() * 0.02) * (3 * dpr * z) : 0;
+      const sit = char.isSitting ? 10 * dpr * z : 0;
 
-      // Walking Legs / Shoes (Tucked when seated)
+      // Legs
       if (!char.isSitting) {
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(ax - 7 * dpr * z, ay - 12 * dpr * z + walkBob, 5 * dpr * z, 12 * dpr * z);
-        ctx.fillRect(ax + 2 * dpr * z, ay - 12 * dpr * z - walkBob, 5 * dpr * z, 12 * dpr * z);
+        ctx.fillRect(ax - 6 * dpr * z, ay - 10 * dpr * z + bob, 4 * dpr * z, 10 * dpr * z);
+        ctx.fillRect(ax + 2 * dpr * z, ay - 10 * dpr * z - bob, 4 * dpr * z, 10 * dpr * z);
       }
 
-      // Torso / Outfit
+      // Torso
       ctx.fillStyle = char.outfitColor;
       ctx.beginPath();
-      ctx.roundRect(ax - 13 * dpr * z, ay - 36 * dpr * z + walkBob + sitOffset, 26 * dpr * z, 24 * dpr * z, 6 * dpr * z);
-      ctx.fill();
-
-      // Shirt Collar Accent
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-      ctx.beginPath();
-      ctx.moveTo(ax - 6 * dpr * z, ay - 36 * dpr * z + walkBob + sitOffset);
-      ctx.lineTo(ax, ay - 28 * dpr * z + walkBob + sitOffset);
-      ctx.lineTo(ax + 6 * dpr * z, ay - 36 * dpr * z + walkBob + sitOffset);
+      ctx.roundRect(ax - 12 * dpr * z, ay - 32 * dpr * z + bob + sit, 24 * dpr * z, 22 * dpr * z, 5 * dpr * z);
       ctx.fill();
 
       // Head
       ctx.fillStyle = char.skinColor || '#fcd34d';
       ctx.beginPath();
-      ctx.arc(ax, ay - 48 * dpr * z + walkBob + sitOffset, 15 * dpr * z, 0, Math.PI * 2);
+      ctx.arc(ax, ay - 44 * dpr * z + bob + sit, 14 * dpr * z, 0, Math.PI * 2);
       ctx.fill();
 
-      // Layered Anime Hair & Eyes
+      // Hair
       ctx.fillStyle = char.hairColor;
-      if (char.direction === 'N') {
-        ctx.beginPath();
-        ctx.arc(ax, ay - 49 * dpr * z + walkBob + sitOffset, 16 * dpr * z, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Haircap
-        ctx.beginPath();
-        ctx.arc(ax, ay - 52 * dpr * z + walkBob + sitOffset, 16 * dpr * z, Math.PI, Math.PI * 2);
-        ctx.fill();
+      ctx.beginPath();
+      ctx.arc(ax, ay - 48 * dpr * z + bob + sit, 15 * dpr * z, Math.PI, Math.PI * 2);
+      ctx.fill();
 
-        // Bangs
-        ctx.beginPath();
-        ctx.moveTo(ax - 15 * dpr * z, ay - 52 * dpr * z + walkBob + sitOffset);
-        ctx.lineTo(ax - 8 * dpr * z, ay - 44 * dpr * z + walkBob + sitOffset);
-        ctx.lineTo(ax, ay - 50 * dpr * z + walkBob + sitOffset);
-        ctx.lineTo(ax + 8 * dpr * z, ay - 44 * dpr * z + walkBob + sitOffset);
-        ctx.lineTo(ax + 15 * dpr * z, ay - 52 * dpr * z + walkBob + sitOffset);
-        ctx.fill();
-
-        // Expressive Eyes with Catchlight Glints
-        if (char.direction === 'S') {
-          ctx.fillStyle = '#0f172a';
-          ctx.fillRect(ax - 7 * dpr * z, ay - 48 * dpr * z + walkBob + sitOffset, 4 * dpr * z, 5 * dpr * z);
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(ax - 6 * dpr * z, ay - 47 * dpr * z + walkBob + sitOffset, 2 * dpr * z, 2 * dpr * z);
-
-          ctx.fillStyle = '#0f172a';
-          ctx.fillRect(ax + 3 * dpr * z, ay - 48 * dpr * z + walkBob + sitOffset, 4 * dpr * z, 5 * dpr * z);
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(ax + 4 * dpr * z, ay - 47 * dpr * z + walkBob + sitOffset, 2 * dpr * z, 2 * dpr * z);
-        } else if (char.direction === 'E') {
-          ctx.fillStyle = '#0f172a';
-          ctx.fillRect(ax + 5 * dpr * z, ay - 48 * dpr * z + walkBob + sitOffset, 4 * dpr * z, 5 * dpr * z);
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(ax + 6 * dpr * z, ay - 47 * dpr * z + walkBob + sitOffset, 2 * dpr * z, 2 * dpr * z);
-        } else if (char.direction === 'W') {
-          ctx.fillStyle = '#0f172a';
-          ctx.fillRect(ax - 9 * dpr * z, ay - 48 * dpr * z + walkBob + sitOffset, 4 * dpr * z, 5 * dpr * z);
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(ax - 8 * dpr * z, ay - 47 * dpr * z + walkBob + sitOffset, 2 * dpr * z, 2 * dpr * z);
-        }
-      }
-
-      // Name Tag
-      ctx.font = `bold ${9 * dpr * z}px sans-serif`;
+      // Name
+      ctx.font = `bold ${8 * dpr * z}px sans-serif`;
       ctx.fillStyle = isSelf ? '#ec4899' : '#06b6d4';
       ctx.textAlign = 'center';
-      ctx.fillText(char.name || 'Friend', ax, ay - 70 * dpr * z + walkBob + sitOffset);
+      ctx.fillText(char.name, ax, ay - 62 * dpr * z + bob + sit);
 
-      // Emote
-      if (char.emoteTimer > 0) {
-        ctx.font = `${26 * dpr * z}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.fillText(char.emote, ax, ay - 84 * dpr * z + walkBob + sitOffset);
-      }
-
-      // Screen-Safe Speech Bubble (prevents edge truncation)
+      // Bubble
       if (char.bubbleTimer > 0 && char.bubbleText) {
-        ctx.font = `bold ${11 * dpr * z}px sans-serif`;
-        const textWidth = ctx.measureText(char.bubbleText).width;
-        const bubbleW = textWidth + 20 * dpr * z;
-        const bubbleH = 26 * dpr * z;
-        const verticalStagger = (index % 2) * (28 * dpr * z);
-
-        // Clamps bubble X safely within viewport boundaries
-        let bubbleX = ax - bubbleW / 2;
-        bubbleX = Math.max(12 * dpr, Math.min(W - bubbleW - 12 * dpr, bubbleX));
-        const bubbleY = ay - 98 * dpr * z + walkBob + sitOffset - verticalStagger;
+        ctx.font = `bold ${10 * dpr * z}px sans-serif`;
+        const textW = ctx.measureText(char.bubbleText).width;
+        const bw = textW + 16 * dpr * z;
+        const bx = Math.max(10 * dpr, Math.min(W - bw - 10 * dpr, ax - bw / 2));
+        const by = ay - 88 * dpr * z + bob + sit;
 
         ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
         ctx.strokeStyle = isSelf ? '#ec4899' : '#06b6d4';
-        ctx.lineWidth = 2 * dpr;
+        ctx.lineWidth = 1.5 * dpr;
         ctx.beginPath();
-        ctx.roundRect(bubbleX, bubbleY, bubbleW, bubbleH, 8 * dpr * z);
+        ctx.roundRect(bx, by, bw, 24 * dpr * z, 6 * dpr * z);
         ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = '#ffffff';
-        ctx.textAlign = 'center';
-        ctx.fillText(char.bubbleText, bubbleX + bubbleW / 2, bubbleY + 17 * dpr * z);
+        ctx.fillText(char.bubbleText, bx + bw / 2, by + 16 * dpr * z);
       }
     }
 
     function render() {
       ctx.clearRect(0, 0, W, H);
-
       const ox = (W / 2) + camera.x;
       const oy = (H / 2) + camera.y;
       const z = camera.zoom;
 
-      let wallLeft = '#1e1b4b', wallRight = '#2e1065', tileA = '#0f172a', tileB = '#1e293b', trimColor = '#ec4899';
+      let wallLeft = '#1e1b4b', wallRight = '#2e1065', tileA = '#0f172a', tileB = '#1e293b';
       if (currentTheme === 'wood') {
-        wallLeft = '#3f2e20'; wallRight = '#4a3525'; tileA = '#78350f'; tileB = '#92400e'; trimColor = '#f59e0b';
+        wallLeft = '#3f2e20'; wallRight = '#4a3525'; tileA = '#78350f'; tileB = '#92400e';
       } else if (currentTheme === 'mint') {
-        wallLeft = '#064e3b'; wallRight = '#065f46'; tileA = '#022c22'; tileB = '#044e3d'; trimColor = '#10b981';
+        wallLeft = '#064e3b'; wallRight = '#065f46'; tileA = '#022c22'; tileB = '#044e3d';
       }
 
-      if (lightingMode === 1) { // Sunset
-        wallLeft = '#451a03'; wallRight = '#7c2d12';
-      } else if (lightingMode === 2) { // Day
-        wallLeft = '#1e293b'; wallRight = '#334155';
-      } else if (lightingMode === 3) { // Matrix
-        wallLeft = '#022c22'; wallRight = '#064e3b'; trimColor = '#10b981';
-      }
+      // Walls
+      const cTop = toIso(0, 0);
+      const cLeft = toIso(0, GRID_SIZE);
+      const cRight = toIso(GRID_SIZE, 0);
 
-      const cornerTop = toIso(0, 0);
-      const cornerLeft = toIso(0, GRID_SIZE);
-      const cornerRight = toIso(GRID_SIZE, 0);
-
-      // Back-Left Wall
       ctx.fillStyle = wallLeft;
       ctx.beginPath();
-      ctx.moveTo(ox + cornerTop.x, oy + cornerTop.y);
-      ctx.lineTo(ox + cornerLeft.x, oy + cornerLeft.y);
-      ctx.lineTo(ox + cornerLeft.x, oy + cornerLeft.y - WALL_H * z);
-      ctx.lineTo(ox + cornerTop.x, oy + cornerTop.y - WALL_H * z);
-      ctx.closePath();
+      ctx.moveTo(ox + cTop.x, oy + cTop.y);
+      ctx.lineTo(ox + cLeft.x, oy + cLeft.y);
+      ctx.lineTo(ox + cLeft.x, oy + cLeft.y - WALL_H * z);
+      ctx.lineTo(ox + cTop.x, oy + cTop.y - WALL_H * z);
       ctx.fill();
 
-      // Back-Right Wall
       ctx.fillStyle = wallRight;
       ctx.beginPath();
-      ctx.moveTo(ox + cornerTop.x, oy + cornerTop.y);
-      ctx.lineTo(ox + cornerRight.x, oy + cornerRight.y);
-      ctx.lineTo(ox + cornerRight.x, oy + cornerRight.y - WALL_H * z);
-      ctx.lineTo(ox + cornerTop.x, oy + cornerTop.y - WALL_H * z);
-      ctx.closePath();
+      ctx.moveTo(ox + cTop.x, oy + cTop.y);
+      ctx.lineTo(ox + cRight.x, oy + cRight.y);
+      ctx.lineTo(ox + cRight.x, oy + cRight.y - WALL_H * z);
+      ctx.lineTo(ox + cTop.x, oy + cTop.y - WALL_H * z);
       ctx.fill();
 
-      // Cyber Window & Animated Skyline
-      const winGrad = ctx.createLinearGradient(ox - 80 * dpr * z, oy - 160 * dpr * z, ox - 10 * dpr * z, oy - 60 * dpr * z);
-      winGrad.addColorStop(0, lightingMode === 1 ? 'rgba(249, 115, 22, 0.8)' : (lightingMode === 3 ? 'rgba(16, 185, 129, 0.8)' : 'rgba(6, 182, 212, 0.7)'));
-      winGrad.addColorStop(1, 'rgba(236, 72, 153, 0.5)');
-      ctx.fillStyle = winGrad;
-      ctx.strokeStyle = '#06b6d4';
-      ctx.lineWidth = 3 * dpr * z;
-      ctx.beginPath();
-      ctx.moveTo(ox - 80 * dpr * z, oy - 160 * dpr * z);
-      ctx.lineTo(ox - 10 * dpr * z, oy - 125 * dpr * z);
-      ctx.lineTo(ox - 10 * dpr * z, oy - 60 * dpr * z);
-      ctx.lineTo(ox - 80 * dpr * z, oy - 95 * dpr * z);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      // Passing Aerial Cruiser
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(ox - 75 * dpr * z + (trafficX * dpr * 0.45 * z), oy - 115 * dpr * z + (trafficX * dpr * 0.22 * z), 5 * dpr * z, 2 * dpr * z);
-
-      // Floor Seam Trim
-      ctx.strokeStyle = trimColor;
-      ctx.lineWidth = 3 * dpr * z;
-      ctx.beginPath();
-      ctx.moveTo(ox + cornerLeft.x, oy + cornerLeft.y);
-      ctx.lineTo(ox + cornerTop.x, oy + cornerTop.y);
-      ctx.lineTo(ox + cornerRight.x, oy + cornerRight.y);
-      ctx.stroke();
-
-      // Floor Tiles
+      // Tiles
       for (let x = 0; x < GRID_SIZE; x++) {
         for (let y = 0; y < GRID_SIZE; y++) {
           const iso = toIso(x, y);
@@ -843,81 +616,34 @@
           ctx.lineTo(px - (TILE_W / 2) * z, py + (TILE_H / 2) * z);
           ctx.closePath();
 
-          if (pendingItemType && hoveredGrid && hoveredGrid.gx === x && hoveredGrid.gy === y) {
-            const isOccupied = isTileSolid(x, y);
-            ctx.fillStyle = isOccupied ? 'rgba(239, 68, 68, 0.65)' : 'rgba(16, 185, 129, 0.65)';
-            ctx.fill();
-            ctx.strokeStyle = isOccupied ? '#ef4444' : '#10b981';
-            ctx.lineWidth = 2.5 * dpr * z;
-            ctx.stroke();
-          } else {
-            ctx.fillStyle = ((x + y) % 2 === 0) ? tileA : tileB;
-            ctx.fill();
-            ctx.strokeStyle = '#334155';
-            ctx.lineWidth = 1 * dpr;
-            ctx.stroke();
-          }
+          ctx.fillStyle = ((x + y) % 2 === 0) ? tileA : tileB;
+          ctx.fill();
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 1 * dpr;
+          ctx.stroke();
         }
       }
 
-      // Tap Ripples
-      for (let r of tapRipples) {
-        ctx.beginPath();
-        ctx.ellipse(r.x, r.y, r.r, r.r / 2, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(236, 72, 153, ${r.alpha})`;
-        ctx.lineWidth = 2 * dpr;
-        ctx.stroke();
-      }
+      // Entities Depth Sorted
+      const entities = [
+        ...furniture.map(f => ({ type: 'decor', data: f, depth: f.isWall ? -10 : f.gx + f.gy })),
+        ...friends.map(fr => ({ type: 'friend', data: fr, depth: fr.gx + fr.gy })),
+        { type: 'player', data: player, depth: player.gx + player.gy }
+      ].sort((a, b) => a.depth - b.depth);
 
-      // Ambient Dust Particles
-      ctx.fillStyle = 'rgba(236, 72, 153, 0.4)';
-      for (let m of motes) {
-        ctx.beginPath();
-        ctx.arc(m.x % W, m.y % H, m.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Target Movement Circle
-      if (player.isMoving) {
-        const tIso = toIso(player.targetGx, player.targetGy);
-        const tx = ox + tIso.x;
-        const ty = oy + tIso.y + (TILE_H / 2) * z;
-        ctx.beginPath();
-        ctx.ellipse(tx, ty, 20 * dpr * z, 10 * dpr * z, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = '#ec4899';
-        ctx.lineWidth = 2.5 * dpr;
-        ctx.stroke();
-      }
-
-      // Depth Sorted Rendering
-      const renderList = [
-        ...furniture.map(f => ({ type: 'furniture', data: f, depth: f.isWall ? -10 : (f.gx + f.gy) })),
-        ...friends.map((fr, idx) => ({ type: 'friend', data: fr, depth: fr.gx + fr.gy, idx })),
-        { type: 'player', data: player, depth: player.gx + player.gy, idx: 0 }
-      ];
-
-      renderList.sort((a, b) => a.depth - b.depth);
-
-      for (let ent of renderList) {
-        if (ent.type === 'furniture') {
-          render3DFurniture(ent.data, ox, oy);
-        } else if (ent.type === 'friend') {
-          renderAvatar(ent.data, false, ox, oy, ent.idx);
-        } else {
-          renderAvatar(ent.data, true, ox, oy, ent.idx);
-        }
+      for (let ent of entities) {
+        if (ent.type === 'decor') renderFurniture(ent.data, ox, oy);
+        else if (ent.type === 'friend') renderAvatar(ent.data, false, ox, oy);
+        else renderAvatar(ent.data, true, ox, oy);
       }
 
       update();
       requestAnimationFrame(render);
     }
 
-    // Input Handling
+    // Canvas Events
     canvas.addEventListener('pointerdown', (e) => {
       closeAllModals();
-      isDraggingCam = false;
-      lastTouch = { x: e.clientX, y: e.clientY };
-
       const rect = canvas.getBoundingClientRect();
       const clickX = (e.clientX - rect.left) * (canvas.width / rect.width);
       const clickY = (e.clientY - rect.top) * (canvas.height / rect.height);
@@ -928,23 +654,6 @@
       tapRipples.push({ x: clickX, y: clickY, r: 4 * dpr, alpha: 0.9 });
       playSFX('tap');
 
-      // Wall Placement Detection
-      if (pendingItemType === 'poster') {
-        const isLeft = clickX < (W / 2 + camera.x);
-        furniture.push({
-          type: 'poster',
-          gx: 0,
-          gy: Math.max(0, Math.min(3, Math.floor(Math.random() * 3))),
-          rot: 0,
-          isWall: true,
-          wallSide: isLeft ? 'left' : 'right'
-        });
-        saveDecorState();
-        cancelPlacement();
-        playSFX('drop');
-        return;
-      }
-
       if (tx >= 0 && tx < GRID_SIZE && ty >= 0 && ty < GRID_SIZE) {
         if (pendingItemType) {
           furniture.push({ type: pendingItemType, gx: tx, gy: ty, rot: pendingRot, active: true });
@@ -953,64 +662,46 @@
           playSFX('drop');
           return;
         }
-
-        const hitIndex = furniture.findIndex(f => f.gx === tx && f.gy === ty && !f.isWall);
-        if (hitIndex !== -1) {
-          const hit = furniture[hitIndex];
-          if (hit.type === 'lamp' || hit.type === 'arcade' || hit.type === 'desk') {
-            hit.active = !hit.active;
-            playSFX(hit.type === 'arcade' ? 'arcade' : 'drop');
-            saveDecorState();
-            return;
-          }
-
-          const action = prompt(`Item: ${hit.type}\nType 'del' to remove, or 'rot' to turn:`, 'rot');
-          if (action === 'del') {
-            furniture.splice(hitIndex, 1);
-            saveDecorState();
-            playSFX('drop');
-          } else if (action === 'rot') {
-            hit.rot = ((hit.rot || 0) + 1) % 4;
-            saveDecorState();
-            playSFX('tap');
-          }
-          return;
-        }
-
         player.targetGx = tx;
         player.targetGy = ty;
         player.isMoving = true;
       }
     });
 
-    canvas.addEventListener('pointermove', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const clickX = (e.clientX - rect.left) * (canvas.width / rect.width);
-      const clickY = (e.clientY - rect.top) * (canvas.height / rect.height);
+    // AI Chat Engine Integration Hook
+    async function handleChat(e) {
+      e.preventDefault();
+      const input = document.getElementById('chatInput');
+      const val = input.value.trim();
+      if (!val) return;
 
-      if (pendingItemType) {
-        const coord = fromIso(clickX, clickY);
-        hoveredGrid = { gx: Math.round(coord.gx), gy: Math.round(coord.gy) };
-      }
+      player.bubbleText = val;
+      player.bubbleTimer = 180;
+      input.value = '';
 
-      if (e.buttons === 1 && !pendingItemType) {
-        const dx = e.clientX - lastTouch.x;
-        const dy = e.clientY - lastTouch.y;
-        if (Math.hypot(dx, dy) > 8) {
-          camera.x += dx * 1.2;
-          camera.y += dy * 1.2;
-          lastTouch = { x: e.clientX, y: e.clientY };
-          isDraggingCam = true;
-        }
+      if (friends.length > 0) {
+        const responder = friends[Math.floor(Math.random() * friends.length)];
+        
+        // Simulating LLM inference delay & character responses
+        setTimeout(() => {
+          const smartReplies = [
+            `I love what you've done with the space! ✨`,
+            `The lofi beat in here is so relaxing.`,
+            `Do you think we should add an arcade game? 🕹️`,
+            `Oiioii vibe certified. 🚀`,
+            `I was just exploring around the grid!`
+          ];
+          responder.bubbleText = smartReplies[Math.floor(Math.random() * smartReplies.length)];
+          responder.bubbleTimer = 200;
+          playSFX('drop');
+        }, 900);
       }
-    });
+    }
 
     function startPlacement(type) {
       pendingItemType = type;
       pendingRot = 0;
       closeAllModals();
-      document.getElementById('rotDeg').innerText = '0°';
-      document.getElementById('placementNotice').innerText = type === 'poster' ? 'Tap any back wall to hang' : 'Tap floor tile to place';
       document.getElementById('placementBanner').classList.remove('hidden');
     }
 
@@ -1022,7 +713,6 @@
 
     function cancelPlacement() {
       pendingItemType = null;
-      hoveredGrid = null;
       document.getElementById('placementBanner').classList.add('hidden');
     }
 
@@ -1039,56 +729,19 @@
       document.getElementById('themeModal').classList.add('hidden');
     }
 
-    function setHair(c) {
-      player.hairColor = c;
-      localStorage.setItem('oiioii_hair', c);
-      playSFX('drop');
-    }
-
-    function setOutfit(c) {
-      player.outfitColor = c;
-      localStorage.setItem('oiioii_outfit', c);
-      playSFX('drop');
-    }
-
-    function triggerEmote(em) {
-      player.emote = em;
-      player.emoteTimer = 90;
-      playSFX('tap');
-    }
-
-    function handleChat(e) {
-      e.preventDefault();
-      const input = document.getElementById('chatInput');
-      const val = input.value.trim();
-      if (val) {
-        player.bubbleText = val;
-        player.bubbleTimer = 180;
-        input.value = '';
-
-        if (friends.length > 0) {
-          setTimeout(() => {
-            const randomFriend = friends[Math.floor(Math.random() * friends.length)];
-            const replies = ['Love this room! ✨', 'Sitting right here! 🛋️', 'Vibing with the music 🎶', 'Oiioii! 🔥', 'Looking good!'];
-            randomFriend.bubbleText = replies[Math.floor(Math.random() * replies.length)];
-            randomFriend.bubbleTimer = 180;
-            playSFX('drop');
-          }, 800);
-        }
-      }
-    }
+    function setHair(c) { player.hairColor = c; localStorage.setItem('oiioii_hair', c); playSFX('drop'); }
+    function setOutfit(c) { player.outfitColor = c; localStorage.setItem('oiioii_outfit', c); playSFX('drop'); }
+    function triggerEmote(e) { player.emote = e; player.emoteTimer = 90; playSFX('tap'); }
 
     function captureRoomPhoto() {
       document.getElementById('topHud').style.display = 'none';
       document.getElementById('hudBottom').style.display = 'none';
-
       setTimeout(() => {
         render();
         const link = document.createElement('a');
-        link.download = `oiioii-room-${Date.now()}.png`;
+        link.download = `oiioii-${Date.now()}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
-
         document.getElementById('topHud').style.display = '';
         document.getElementById('hudBottom').style.display = '';
       }, 100);
