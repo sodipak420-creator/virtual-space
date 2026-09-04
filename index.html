@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Oiioii Space • Virtual Sandbox</title>
+  <title>Oiioii Space • Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html, body {
@@ -15,71 +15,70 @@
 </head>
 <body class="bg-slate-950 text-slate-100 flex flex-col items-center justify-between select-none">
 
-  <!-- Header HUD -->
-  <header class="w-full max-w-md flex items-center justify-between px-4 py-2 bg-slate-900/90 backdrop-blur z-20 border-b border-slate-800">
+  <header class="w-full max-w-md flex items-center justify-between px-3 py-2 bg-slate-900/90 backdrop-blur z-20 border-b border-slate-800">
     <div class="flex items-center gap-2">
       <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
       <span class="text-xs font-black text-pink-400 tracking-wider">OIIOII SPACE</span>
-      <span class="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded font-mono">Room #101</span>
+      <span class="text-[9px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded font-mono">Room #101</span>
     </div>
     <div class="flex gap-1.5">
-      <button onclick="toggleAudio()" id="audioBtn" class="px-2.5 py-1.5 bg-slate-800 active:scale-95 text-xs font-bold rounded-xl border border-slate-700 text-slate-200">
+      <button onclick="toggleAudio()" id="audioBtn" class="px-2 py-1 bg-slate-800 active:scale-95 text-xs font-bold rounded-xl border border-slate-700 text-slate-200">
         🔈 Lofi
       </button>
-      <button onclick="toggleModal('wardrobeModal')" class="px-2.5 py-1.5 bg-slate-800 active:scale-95 text-xs font-bold rounded-xl border border-slate-700 text-slate-200">
+      <button onclick="toggleModal('themeModal')" class="px-2 py-1 bg-slate-800 active:scale-95 text-xs font-bold rounded-xl border border-slate-700 text-slate-200">
+        🎨 Theme
+      </button>
+      <button onclick="toggleModal('wardrobeModal')" class="px-2 py-1 bg-slate-800 active:scale-95 text-xs font-bold rounded-xl border border-slate-700 text-slate-200">
         👗 Style
       </button>
-      <button onclick="toggleModal('decorModal')" class="px-2.5 py-1.5 bg-pink-500 active:scale-95 text-xs font-black rounded-xl text-slate-950 shadow-md shadow-pink-500/20">
+      <button onclick="toggleModal('decorModal')" class="px-2.5 py-1 bg-pink-500 active:scale-95 text-xs font-black rounded-xl text-slate-950 shadow-md shadow-pink-500/20">
         🛋️ Decor
       </button>
     </div>
   </header>
 
-  <!-- Placement Banner -->
   <div id="placementBanner" class="hidden absolute top-14 z-30 bg-emerald-500 text-slate-950 text-xs font-black px-4 py-2 rounded-2xl shadow-xl flex items-center gap-3">
-    <span id="placementText">Tap floor to place • Tap Rotate to turn</span>
+    <span>Tap floor to place item</span>
     <button onclick="rotatePending()" class="bg-slate-900 text-white px-2 py-0.5 rounded-lg text-[10px]">🔄 Rotate</button>
     <button onclick="cancelPlacement()" class="text-slate-900 font-black">✕</button>
   </div>
 
-  <!-- Interactive Viewport -->
   <main class="relative w-full max-w-md flex-1 overflow-hidden bg-slate-950">
     <canvas id="spaceCanvas" class="w-full h-full block"></canvas>
 
-    <!-- Bottom Controls -->
     <div class="absolute bottom-3 inset-x-3 flex flex-col gap-2 pointer-events-none z-10">
       
-      <!-- Chat Bar -->
       <form onsubmit="handleChat(event)" class="flex gap-1.5 pointer-events-auto">
-        <input id="chatInput" type="text" placeholder="Type a message..." maxlength="40" class="flex-1 bg-slate-900/90 backdrop-blur border border-slate-700 text-xs px-3 py-2 rounded-xl text-white outline-none focus:border-pink-500 placeholder-slate-500" />
+        <input id="chatInput" type="text" placeholder="Type a message to the room..." maxlength="45" class="flex-1 bg-slate-900/90 backdrop-blur border border-slate-700 text-xs px-3 py-2 rounded-xl text-white outline-none focus:border-pink-500 placeholder-slate-500" />
         <button type="submit" class="px-4 bg-pink-500 active:scale-95 text-slate-950 font-black text-xs rounded-xl shadow-md">
           Send
         </button>
       </form>
 
-      <!-- Action Buttons -->
       <div class="flex justify-between items-center">
         <div class="flex gap-1.5 pointer-events-auto">
-          <button onclick="centerPlayer()" class="px-3 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-slate-300 active:scale-95">
+          <button onclick="centerPlayer()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-slate-300 active:scale-95">
             Center 🎯
           </button>
           <button onclick="spawnFriend()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-cyan-400 active:scale-95">
             + Friend 👾
           </button>
-          <button onclick="clearRoom()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-rose-400 active:scale-95">
-            Reset 🧹
+          <button onclick="captureRoomPhoto()" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-amber-400 active:scale-95">
+            📸 Snap
+          </button>
+          <button onclick="clearRoom()" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs font-bold rounded-xl border border-slate-800 text-rose-400 active:scale-95">
+            🧹
           </button>
         </div>
-        <div class="flex gap-1.5 pointer-events-auto">
-          <button onclick="triggerEmote('💖')" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-sm rounded-xl border border-slate-800 active:scale-95">💖</button>
-          <button onclick="triggerEmote('👋')" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-sm rounded-xl border border-slate-800 active:scale-95">👋</button>
-          <button onclick="triggerEmote('✨')" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-sm rounded-xl border border-slate-800 active:scale-95">✨</button>
-          <button onclick="triggerEmote('🔥')" class="px-2.5 py-1.5 bg-slate-900/90 backdrop-blur text-sm rounded-xl border border-slate-800 active:scale-95">🔥</button>
+        <div class="flex gap-1 pointer-events-auto">
+          <button onclick="triggerEmote('💖')" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">💖</button>
+          <button onclick="triggerEmote('👋')" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">👋</button>
+          <button onclick="triggerEmote('✨')" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">✨</button>
+          <button onclick="triggerEmote('🔥')" class="px-2 py-1.5 bg-slate-900/90 backdrop-blur text-xs rounded-xl border border-slate-800 active:scale-95">🔥</button>
         </div>
       </div>
     </div>
 
-    <!-- Wardrobe Modal -->
     <div id="wardrobeModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
         <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Avatar Studio</span>
@@ -107,44 +106,55 @@
       </div>
     </div>
 
-    <!-- Decor Modal -->
+    <div id="themeModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
+      <div class="flex justify-between items-center pb-1 border-b border-slate-800">
+        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Room Architecture & Colors</span>
+        <button onclick="toggleModal('themeModal')" class="text-xs text-slate-400 px-2 py-0.5">✕</button>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-xs">
+        <button onclick="setRoomTheme('cyber')" class="p-2.5 bg-slate-800 rounded-xl border border-slate-700 text-center font-bold">🌌 Cyberpunk</button>
+        <button onclick="setRoomTheme('wood')" class="p-2.5 bg-slate-800 rounded-xl border border-slate-700 text-center font-bold">🪵 Warm Loft</button>
+        <button onclick="setRoomTheme('mint')" class="p-2.5 bg-slate-800 rounded-xl border border-slate-700 text-center font-bold">🌿 Pastel Mint</button>
+      </div>
+    </div>
+
     <div id="decorModal" class="hidden absolute inset-x-3 bottom-24 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-2xl space-y-3 z-30">
       <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">3D Furniture Catalog</span>
+        <span class="text-xs font-black text-pink-400 uppercase tracking-wider">Place Isometric 3D Item</span>
         <button onclick="toggleModal('decorModal')" class="text-xs text-slate-400 px-2 py-0.5">✕</button>
       </div>
       <div class="grid grid-cols-4 gap-2 text-xs">
-        <button onclick="startPlacement('desk')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">🖥️</span>
-          <span class="text-[9px] text-slate-300">Workstation</span>
+        <button onclick="startPlacement('desk')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
+          <span class="text-base">🖥️</span>
+          <span class="text-[9px] text-slate-300">Desk</span>
         </button>
-        <button onclick="startPlacement('bed')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">🛏️</span>
-          <span class="text-[9px] text-slate-300">Platform Bed</span>
+        <button onclick="startPlacement('bed')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
+          <span class="text-base">🛏️</span>
+          <span class="text-[9px] text-slate-300">Bed</span>
         </button>
-        <button onclick="startPlacement('sofa')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">🛋️</span>
-          <span class="text-[9px] text-slate-300">Lounge</span>
+        <button onclick="startPlacement('sofa')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
+          <span class="text-base">🛋️</span>
+          <span class="text-[9px] text-slate-300">Sofa</span>
         </button>
-        <button onclick="startPlacement('plant')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">🪴</span>
+        <button onclick="startPlacement('plant')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
+          <span class="text-base">🪴</span>
           <span class="text-[9px] text-slate-300">Monstera</span>
         </button>
-        <button onclick="startPlacement('chair')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">🪑</span>
-          <span class="text-[9px] text-slate-300">Office Chair</span>
+        <button onclick="startPlacement('chair')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
+          <span class="text-base">🪑</span>
+          <span class="text-[9px] text-slate-300">Chair</span>
         </button>
-        <button onclick="startPlacement('arcade')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">🕹️</span>
-          <span class="text-[9px] text-slate-300">Arcade Rig</span>
+        <button onclick="startPlacement('arcade')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
+          <span class="text-base">🕹️</span>
+          <span class="text-[9px] text-slate-300">Arcade</span>
         </button>
-        <button onclick="startPlacement('shelf')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">📚</span>
+        <button onclick="startPlacement('shelf')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
+          <span class="text-base">📚</span>
           <span class="text-[9px] text-slate-300">Bookshelf</span>
         </button>
-        <button onclick="startPlacement('lamp')" class="p-2.5 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
-          <span class="text-lg">💡</span>
-          <span class="text-[9px] text-slate-300">Neon Lamp</span>
+        <button onclick="startPlacement('lamp')" class="p-2 bg-slate-800 active:bg-slate-700 rounded-xl border border-slate-700 flex flex-col items-center gap-1">
+          <span class="text-base">💡</span>
+          <span class="text-[9px] text-slate-300">Lamp</span>
         </button>
       </div>
     </div>
@@ -167,20 +177,24 @@
 
     const GRID_SIZE = 8;
     const dpr = window.devicePixelRatio || 1;
-    // Scaled up tiles for phone display centering
+    // Edge-to-edge room tile sizing
     const TILE_W = 104 * dpr;
     const TILE_H = 52 * dpr;
-    const WALL_H = 220 * dpr;
+    const WALL_H = 240 * dpr;
 
+    // Persisted State
     const savedHair = localStorage.getItem('oiioii_hair') || '#06b6d4';
     const savedOutfit = localStorage.getItem('oiioii_outfit') || '#ffffff';
+    const savedTheme = localStorage.getItem('oiioii_theme') || 'cyber';
     const savedFurniture = localStorage.getItem('oiioii_decor');
 
+    let currentTheme = savedTheme;
     let pendingItemType = null;
-    let pendingRot = 0; // 0, 1, 2, 3
+    let pendingRot = 0;
     let hoveredGrid = null;
 
     const player = {
+      name: 'You',
       gx: 4, gy: 4,
       targetGx: 4, targetGy: 4,
       speed: 0.08,
@@ -215,6 +229,9 @@
       speed: Math.random() * 0.35 + 0.2
     }));
 
+    // City skyline traffic animation
+    let trafficX = 0;
+
     function saveDecorState() {
       localStorage.setItem('oiioii_decor', JSON.stringify(furniture));
     }
@@ -227,9 +244,8 @@
     }
 
     function fromIso(screenX, screenY) {
-      // Centered room calculation
       const ox = W / 2;
-      const oy = (H / 2) + 10 * dpr;
+      const oy = (H / 2) + 20 * dpr;
       const relX = screenX - ox;
       const relY = screenY - oy;
       const gx = (relX / (TILE_W / 2) + relY / (TILE_H / 2)) / 2;
@@ -237,7 +253,7 @@
       return { gx, gy };
     }
 
-    // Audio Engine
+    // Audio Synthesizer
     let audioCtx = null;
     let isPlayingAudio = false;
     let audioInterval = null;
@@ -267,9 +283,15 @@
       }
     }
 
+    function setRoomTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem('oiioii_theme', theme);
+      toggleModal('themeModal');
+    }
+
     function spawnFriend() {
       if (friends.length >= 4) {
-        alert("Room is cozy! Max 4 visitor friends.");
+        alert("Room is cozy! Max 4 friends.");
         return;
       }
       const names = ['Kai', 'Mika', 'Leo', 'Nova'];
@@ -281,6 +303,7 @@
         speed: 0.05,
         direction: 'S',
         isMoving: false,
+        isSitting: false,
         hairColor: ['#f59e0b', '#10b981', '#ec4899', '#a855f7'][friends.length],
         outfitColor: ['#1e293b', '#06b6d4', '#f43f5e', '#3b82f6'][friends.length],
         bubbleText: 'Oiioii! ✨',
@@ -295,7 +318,9 @@
     }
 
     function update() {
-      // Player Movement
+      trafficX = (trafficX + 0.5) % 120;
+
+      // Player Movement & Sitting Detection
       if (player.isMoving) {
         const dx = player.targetGx - player.gx;
         const dy = player.targetGy - player.gy;
@@ -357,7 +382,7 @@
       }
     }
 
-    // High-Resolution Vector 3D Isometric Furniture
+    // High-Resolution 3D Furniture Rendering
     function render3DFurniture(item, ox, oy) {
       const fIso = toIso(item.gx, item.gy);
       const fx = ox + fIso.x;
@@ -366,19 +391,16 @@
       ctx.save();
 
       if (item.type === 'desk') {
-        // Shadow
         ctx.fillStyle = 'rgba(0,0,0,0.35)';
         ctx.beginPath();
         ctx.ellipse(fx, fy, 32 * dpr, 16 * dpr, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Legs
         ctx.fillStyle = '#0f172a';
         ctx.fillRect(fx - 28 * dpr, fy - 30 * dpr, 4 * dpr, 26 * dpr);
         ctx.fillRect(fx + 24 * dpr, fy - 30 * dpr, 4 * dpr, 26 * dpr);
 
-        // Desk Board
-        ctx.fillStyle = '#334155';
+        ctx.fillStyle = currentTheme === 'wood' ? '#78350f' : '#334155';
         ctx.beginPath();
         ctx.moveTo(fx, fy - 22 * dpr);
         ctx.lineTo(fx + 34 * dpr, fy - 39 * dpr);
@@ -387,14 +409,12 @@
         ctx.closePath();
         ctx.fill();
 
-        // Dual Monitors
         ctx.fillStyle = '#0f172a';
         ctx.fillRect(fx - 16 * dpr, fy - 68 * dpr, 32 * dpr, 18 * dpr);
         ctx.fillStyle = '#38bdf8';
         ctx.fillRect(fx - 14 * dpr, fy - 66 * dpr, 28 * dpr, 14 * dpr);
       } 
       else if (item.type === 'chair') {
-        // Office Gaming Chair
         ctx.fillStyle = 'rgba(0,0,0,0.3)';
         ctx.beginPath();
         ctx.ellipse(fx, fy, 14 * dpr, 7 * dpr, 0, 0, Math.PI * 2);
@@ -409,7 +429,6 @@
         ctx.fill();
       }
       else if (item.type === 'bed') {
-        // Platform Bed
         ctx.fillStyle = '#1e293b';
         ctx.beginPath();
         ctx.moveTo(fx, fy);
@@ -419,7 +438,6 @@
         ctx.closePath();
         ctx.fill();
 
-        // Duvet Quilt
         ctx.fillStyle = '#ec4899';
         ctx.beginPath();
         ctx.moveTo(fx, fy - 8 * dpr);
@@ -429,13 +447,11 @@
         ctx.closePath();
         ctx.fill();
 
-        // Pillows
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(fx - 22 * dpr, fy - 44 * dpr, 18 * dpr, 9 * dpr);
         ctx.fillRect(fx + 4 * dpr, fy - 44 * dpr, 18 * dpr, 9 * dpr);
       } 
       else if (item.type === 'sofa') {
-        // Large Couch
         ctx.fillStyle = '#4f46e5';
         ctx.beginPath();
         ctx.roundRect(fx - 32 * dpr, fy - 36 * dpr, 64 * dpr, 30 * dpr, 8 * dpr);
@@ -446,7 +462,6 @@
         ctx.fill();
       } 
       else if (item.type === 'plant') {
-        // Monstera & Pot
         ctx.fillStyle = '#ea580c';
         ctx.beginPath();
         ctx.arc(fx, fy - 12 * dpr, 12 * dpr, 0, Math.PI * 2);
@@ -460,7 +475,6 @@
         ctx.fill();
       }
       else if (item.type === 'arcade') {
-        // Retro Arcade Machine
         ctx.fillStyle = '#0f172a';
         ctx.fillRect(fx - 16 * dpr, fy - 65 * dpr, 32 * dpr, 60 * dpr);
         ctx.fillStyle = '#ec4899';
@@ -473,8 +487,7 @@
         ctx.fill();
       }
       else if (item.type === 'shelf') {
-        // Wall Bookshelf
-        ctx.fillStyle = '#854d0e';
+        ctx.fillStyle = currentTheme === 'wood' ? '#451a03' : '#854d0e';
         ctx.fillRect(fx - 18 * dpr, fy - 55 * dpr, 36 * dpr, 50 * dpr);
         ctx.fillStyle = '#f43f5e';
         ctx.fillRect(fx - 14 * dpr, fy - 48 * dpr, 8 * dpr, 12 * dpr);
@@ -484,7 +497,6 @@
         ctx.fillRect(fx + 6 * dpr, fy - 30 * dpr, 8 * dpr, 12 * dpr);
       }
       else if (item.type === 'lamp') {
-        // Glowing Neon Lava Lamp
         ctx.fillStyle = '#334155';
         ctx.fillRect(fx - 4 * dpr, fy - 12 * dpr, 8 * dpr, 6 * dpr);
         ctx.fillStyle = '#f43f5e';
@@ -498,7 +510,7 @@
       ctx.restore();
     }
 
-    // Avatar with 4 Directions
+    // Avatar Rendering with Directional Facing & Badges
     function renderAvatar(char, isSelf, ox, oy) {
       const pIso = toIso(char.gx, char.gy);
       const ax = ox + pIso.x;
@@ -554,21 +566,27 @@
         }
       }
 
+      // Name Badge
+      ctx.font = `bold ${8 * dpr}px sans-serif`;
+      ctx.fillStyle = isSelf ? '#ec4899' : '#06b6d4';
+      ctx.textAlign = 'center';
+      ctx.fillText(char.name || 'Friend', ax, ay - 60 * dpr + walkBob + sitOffset);
+
       // Emote
       if (char.emoteTimer > 0) {
         ctx.font = `${24 * dpr}px sans-serif`;
         ctx.textAlign = 'center';
-        ctx.fillText(char.emote, ax, ay - 66 * dpr + walkBob + sitOffset);
+        ctx.fillText(char.emote, ax, ay - 72 * dpr + walkBob + sitOffset);
       }
 
-      // Chat Bubble
+      // Speech Bubble
       if (char.bubbleTimer > 0 && char.bubbleText) {
-        ctx.font = `bold ${11 * dpr}px sans-serif`;
+        ctx.font = `bold ${10 * dpr}px sans-serif`;
         const textWidth = ctx.measureText(char.bubbleText).width;
         const bubbleW = textWidth + 18 * dpr;
         const bubbleH = 24 * dpr;
         const bx = ax - bubbleW / 2;
-        const by = ay - 76 * dpr + walkBob + sitOffset;
+        const by = ay - 88 * dpr + walkBob + sitOffset;
 
         ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
         ctx.strokeStyle = isSelf ? '#ec4899' : '#06b6d4';
@@ -587,9 +605,16 @@
     function render() {
       ctx.clearRect(0, 0, W, H);
 
-      // Centered Anchor
       const ox = W / 2;
-      const oy = (H / 2) + 10 * dpr;
+      const oy = (H / 2) + 20 * dpr;
+
+      // Theme Colors
+      let wallLeft = '#1e1b4b', wallRight = '#2e1065', tileA = '#0f172a', tileB = '#1e293b', trimColor = '#ec4899';
+      if (currentTheme === 'wood') {
+        wallLeft = '#3f2e20'; wallRight = '#4a3525'; tileA = '#78350f'; tileB = '#92400e'; trimColor = '#f59e0b';
+      } else if (currentTheme === 'mint') {
+        wallLeft = '#064e3b'; wallRight = '#065f46'; tileA = '#022c22'; tileB = '#044e3d'; trimColor = '#10b981';
+      }
 
       // Isometric Walls
       const cornerTop = toIso(0, 0);
@@ -597,7 +622,7 @@
       const cornerRight = toIso(GRID_SIZE, 0);
 
       // Left Wall
-      ctx.fillStyle = '#1e1b4b';
+      ctx.fillStyle = wallLeft;
       ctx.beginPath();
       ctx.moveTo(ox + cornerTop.x, oy + cornerTop.y);
       ctx.lineTo(ox + cornerLeft.x, oy + cornerLeft.y);
@@ -607,7 +632,7 @@
       ctx.fill();
 
       // Right Wall
-      ctx.fillStyle = '#2e1065';
+      ctx.fillStyle = wallRight;
       ctx.beginPath();
       ctx.moveTo(ox + cornerTop.x, oy + cornerTop.y);
       ctx.lineTo(ox + cornerRight.x, oy + cornerRight.y);
@@ -616,7 +641,7 @@
       ctx.closePath();
       ctx.fill();
 
-      // Neon Window
+      // Animated Cyber Window with Moving Skyline Glow
       const winGrad = ctx.createLinearGradient(ox - 70 * dpr, oy - 140 * dpr, ox - 10 * dpr, oy - 50 * dpr);
       winGrad.addColorStop(0, 'rgba(6, 182, 212, 0.55)');
       winGrad.addColorStop(1, 'rgba(236, 72, 153, 0.35)');
@@ -632,8 +657,12 @@
       ctx.fill();
       ctx.stroke();
 
-      // Neon Wall Trim
-      ctx.strokeStyle = '#ec4899';
+      // Passing Aerial Light Streak in window
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.fillRect(ox - 65 * dpr + (trafficX * dpr * 0.45), oy - 100 * dpr + (trafficX * dpr * 0.22), 4 * dpr, 1.5 * dpr);
+
+      // Neon Seam Trim
+      ctx.strokeStyle = trimColor;
       ctx.lineWidth = 3 * dpr;
       ctx.beginPath();
       ctx.moveTo(ox + cornerLeft.x, oy + cornerLeft.y);
@@ -662,7 +691,7 @@
             ctx.lineWidth = 2.5 * dpr;
             ctx.stroke();
           } else {
-            ctx.fillStyle = ((x + y) % 2 === 0) ? '#0f172a' : '#1e293b';
+            ctx.fillStyle = ((x + y) % 2 === 0) ? tileA : tileB;
             ctx.fill();
             ctx.strokeStyle = '#334155';
             ctx.lineWidth = 1 * dpr;
@@ -671,7 +700,7 @@
         }
       }
 
-      // Ambient Dust Motes
+      // Ambient Dust Particles
       ctx.fillStyle = 'rgba(236, 72, 153, 0.4)';
       for (let m of motes) {
         ctx.beginPath();
@@ -679,7 +708,7 @@
         ctx.fill();
       }
 
-      // Movement Marker
+      // Movement Destination Ring
       if (player.isMoving) {
         const tIso = toIso(player.targetGx, player.targetGy);
         const tx = ox + tIso.x;
@@ -691,7 +720,7 @@
         ctx.stroke();
       }
 
-      // Depth Sorted Entities
+      // Depth-Sorted World Entities
       const renderList = [
         ...furniture.map(f => ({ type: 'furniture', data: f, depth: f.gx + f.gy })),
         ...friends.map(fr => ({ type: 'friend', data: fr, depth: fr.gx + fr.gy })),
@@ -714,7 +743,7 @@
       requestAnimationFrame(render);
     }
 
-    // Pointer Handling
+    // Pointer Handlers
     canvas.addEventListener('pointermove', (e) => {
       if (!pendingItemType) return;
       const rect = canvas.getBoundingClientRect();
@@ -744,12 +773,15 @@
 
         const hitIndex = furniture.findIndex(f => f.gx === tx && f.gy === ty);
         if (hitIndex !== -1 && hitIndex !== null) {
-          const conf = confirm(`Remove ${furniture[hitIndex].type}?`);
-          if (conf) {
+          const action = prompt(`Item: ${furniture[hitIndex].type}\nType 'del' to remove, or 'rot' to turn 90°:`, 'rot');
+          if (action === 'del') {
             furniture.splice(hitIndex, 1);
             saveDecorState();
-            return;
+          } else if (action === 'rot') {
+            furniture[hitIndex].rot = ((furniture[hitIndex].rot || 0) + 1) % 4;
+            saveDecorState();
           }
+          return;
         }
 
         player.targetGx = tx;
@@ -784,6 +816,7 @@
     function closeAllModals() {
       document.getElementById('wardrobeModal').classList.add('hidden');
       document.getElementById('decorModal').classList.add('hidden');
+      document.getElementById('themeModal').classList.add('hidden');
     }
 
     function setHair(c) {
@@ -813,8 +846,8 @@
         if (friends.length > 0) {
           setTimeout(() => {
             const randomFriend = friends[Math.floor(Math.random() * friends.length)];
-            const botReplies = ['Nice room!', 'Oiioii! ✨', 'Love the vibes 💖', 'Chilling here! 🔥', 'Let’s hang out!'];
-            randomFriend.bubbleText = botReplies[Math.floor(Math.random() * botReplies.length)];
+            const replies = ['Love this room! ✨', 'Sitting right here! 🛋️', 'Vibing with the music 🎶', 'Oiioii! 🔥', 'Looking good!'];
+            randomFriend.bubbleText = replies[Math.floor(Math.random() * replies.length)];
             randomFriend.bubbleTimer = 180;
           }, 900);
         }
@@ -825,6 +858,13 @@
       player.targetGx = 4;
       player.targetGy = 4;
       player.isMoving = true;
+    }
+
+    function captureRoomPhoto() {
+      const link = document.createElement('a');
+      link.download = `oiioii-room-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
     }
 
     render();
